@@ -48,22 +48,20 @@ const img = (path) =>
    Usados quando o backend demora ou não responde.
    ========================================================= */
 
-const fallback = {
+const fallback={
+ settings:{
+    hero_title:'O sabor que dá vontade de voltar',
+    hero_text:'Hambúrgueres preparados com sabor, qualidade e aquele toque especial da BAKONGUINHO.',
+    about_text:'A BAKONGUINHO é uma hamburgueria pensada para quem aprecia boa comida, hambúrgueres saborosos e momentos especiais.',
+    address:'Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola',
+    phone:'923 850 875',
+    hours:'Aberto até às 22:00',
 
-    // Configurações gerais do site
-    settings: {
-        hero_title: "O sabor que dá vontade de voltar",
-        hero_text:
-            "Hambúrgueres preparados com sabor, qualidade e aquele toque especial da BAKONGUINHO.",
-        about_text:
-            "A BAKONGUINHO é uma hamburgueria pensada para quem aprecia boa comida, hambúrgueres saborosos e momentos especiais.",
-        address:
-            "Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola",
-        phone: "923 850 875",
-        hours: "Aberto até às 22:00",
-        maps_url: "https://www.google.com/maps/place/Hamburguer+BAKONGINHO/@-8.8938364,13.5157143,285m/data=!3m1!1e3!4m5!3m4!1s0x1a51ff943b54e54b:0x81f5bb624b697ee3!8m2!3d-8.8939491!4d13.5157987?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D",
-        review_count: 6
-    },
+    /* Link da localização da BAKONGUINHO no Google Maps */
+    maps_url:'https://www.google.com/maps/place/Hamburguer+BAKONGINHO/@-8.8938364,13.5157143,285m/data=!3m1!1e3!4m5!3m4!1s0x1a51ff943b54e54b:0x81f5bb624b697ee3!8m2!3d-8.8939491!4d13.5157987?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D',
+
+    review_count:6
+ },
 
 
     // Categorias de produtos
