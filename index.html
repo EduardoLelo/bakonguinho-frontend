@@ -1,52 +1,85 @@
+```html
 <!doctype html>
 <html lang="pt-PT">
 
 <head>
-    <!-- Configurações básicas da página -->
+    <!-- =====================================================
+         CONFIGURAÇÕES DA PÁGINA
+         ===================================================== -->
+
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Título apresentado no separador do navegador -->
-    <title>BAKONGUINHO — Sabor que dá vontade de voltar</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
 
-    <!-- Folha de estilos principal -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Título da página -->
+    <title>
+        BAKONGUINHO — Sabor que dá vontade de voltar
+    </title>
+
+    <!-- CSS principal -->
+    <link
+        rel="stylesheet"
+        href="assets/css/style.css"
+    >
 </head>
+
 
 <body>
 
-    <!-- =========================================================
+
+    <!-- =====================================================
          BARRA SUPERIOR
-         ========================================================= -->
+         ===================================================== -->
+
     <div class="top-strip">
+
         <div class="container top-strip-inner">
 
-            <!-- Frase principal -->
-            <span>🔥 Sabor que dá vontade de voltar</span>
+            <!-- Slogan -->
+            <span>
+                🔥 Sabor que dá vontade de voltar
+            </span>
 
             <!-- Localização -->
-            <span>📍 Icolo Bengo, Angola</span>
+            <span>
+                📍 Icolo Bengo, Angola
+            </span>
 
         </div>
+
     </div>
 
 
-    <!-- =========================================================
-         CABEÇALHO / MENU DE NAVEGAÇÃO
-         ========================================================= -->
-    <header class="topbar" id="site-header">
+    <!-- =====================================================
+         CABEÇALHO / MENU
+         ===================================================== -->
+
+    <header
+        class="topbar"
+        id="site-header"
+    >
 
         <div class="container nav">
 
-            <!-- Logo da BAKONGUINHO -->
-            <a class="brand" href="#">
+
+            <!-- LOGO -->
+            <a
+                class="brand"
+                href="#"
+            >
+
                 <img
                     src="assets/images/logo.jpeg"
                     alt="BAKONGUINHO"
                 >
+
             </a>
 
-            <!-- Botão para abrir o menu em dispositivos móveis -->
+
+            <!-- BOTÃO DO MENU MOBILE -->
             <button
                 class="menu-toggle"
                 aria-label="Abrir menu"
@@ -55,10 +88,14 @@
                 ☰
             </button>
 
-            <!-- Links principais de navegação -->
+
+            <!-- MENU PRINCIPAL -->
             <nav class="main-nav">
 
-                <a class="active" href="#">
+                <a
+                    class="active"
+                    href="#"
+                >
                     Início
                 </a>
 
@@ -74,13 +111,18 @@
                     Galeria
                 </a>
 
+                <a href="#avaliacoes">
+                    Avaliações
+                </a>
+
                 <a href="#contactos">
                     Contactos
                 </a>
 
             </nav>
 
-            <!-- Botão de pedido pelo WhatsApp -->
+
+            <!-- BOTÃO WHATSAPP -->
             <a
                 class="btn btn-nav"
                 href="https://wa.me/244923850875"
@@ -88,30 +130,37 @@
                 rel="noopener noreferrer"
             >
                 WhatsApp
-                <strong>Fazer pedido</strong>
+                <strong>
+                    Fazer pedido
+                </strong>
             </a>
 
         </div>
+
     </header>
 
 
-    <!-- =========================================================
+    <!-- =====================================================
          CONTEÚDO PRINCIPAL
-         ========================================================= -->
+         ===================================================== -->
+
     <main>
 
 
-        <!-- =====================================================
-             HERO / DESTAQUE PRINCIPAL
-             ===================================================== -->
+        <!-- =================================================
+             HERO
+             ================================================= -->
+
         <section class="hero">
 
             <div class="container hero-grid">
 
-                <!-- Texto principal do Hero -->
+
+                <!-- TEXTO PRINCIPAL -->
                 <div>
 
-                    <!-- Avaliação -->
+
+                    <!-- AVALIAÇÃO GERAL -->
                     <div class="rating-line">
 
                         <span class="rating-stars">
@@ -119,42 +168,48 @@
                         </span>
 
                         <span>
-                            <b>4,0</b> / 5
+                            <b>
+                                4,0
+                            </b>
+                            / 5
                         </span>
 
-                        <span>|</span>
+                        <span>
+                            |
+                        </span>
 
-                        <!-- Número de avaliações atualizado pelo JavaScript -->
+                        <!-- Atualizado pelo JavaScript -->
                         <span id="reviewCount">
-                            6 avaliações
+                            0 avaliações
                         </span>
 
                     </div>
 
 
-                    <!-- Categoria da empresa -->
+                    <!-- CATEGORIAS DA EMPRESA -->
                     <span class="eyebrow eyebrow-light">
                         HAMBURGUERIA • CHURRASCO • TAKE AWAY
                     </span>
 
 
-                    <!-- Título principal -->
+                    <!-- TÍTULO -->
                     <h1 id="heroTitle">
                         O sabor que dá vontade de voltar
                     </h1>
 
 
-                    <!-- Descrição principal -->
+                    <!-- DESCRIÇÃO -->
                     <p id="heroText">
-                        Hambúrgueres preparados com sabor, qualidade e aquele
-                        toque especial da BAKONGUINHO.
+                        Hambúrgueres preparados com sabor, qualidade
+                        e aquele toque especial da BAKONGUINHO.
                     </p>
 
 
-                    <!-- Botões principais -->
+                    <!-- BOTÕES -->
                     <div class="actions">
 
-                        <!-- Ir para o menu -->
+
+                        <!-- IR PARA O MENU -->
                         <a
                             class="btn btn-primary"
                             href="#menu"
@@ -163,7 +218,7 @@
                         </a>
 
 
-                        <!-- Fazer pedido pelo WhatsApp -->
+                        <!-- WHATSAPP -->
                         <a
                             class="btn btn-glass"
                             href="https://wa.me/244923850875"
@@ -178,7 +233,7 @@
                 </div>
 
 
-                <!-- Imagem principal do Hero -->
+                <!-- IMAGEM PRINCIPAL -->
                 <div class="hero-card">
 
                     <img
@@ -191,17 +246,23 @@
                 </div>
 
             </div>
+
         </section>
 
 
-        <!-- =====================================================
-             SECÇÃO DO MENU / PRODUTOS
-             ===================================================== -->
-        <section class="section" id="menu">
+        <!-- =================================================
+             MENU / PRODUTOS
+             ================================================= -->
+
+        <section
+            class="section"
+            id="menu"
+        >
 
             <div class="container">
 
-                <!-- Cabeçalho da secção -->
+
+                <!-- CABEÇALHO -->
                 <div class="section-head">
 
                     <small>
@@ -219,32 +280,35 @@
                 </div>
 
 
-                <!-- Filtros das categorias
-                     Preenchidos dinamicamente pelo JavaScript -->
+                <!-- FILTROS DAS CATEGORIAS -->
                 <div
                     class="filters"
                     id="filters"
                 ></div>
 
 
-                <!-- Lista de produtos
-                     Preenchida dinamicamente pelo JavaScript -->
+                <!-- PRODUTOS -->
                 <div
                     class="products"
                     id="products"
                 >
+
+                    <!-- Conteúdo inicial -->
                     <div class="empty">
                         A carregar menu...
                     </div>
+
                 </div>
 
             </div>
+
         </section>
 
 
-        <!-- =====================================================
-             SECÇÃO SOBRE NÓS
-             ===================================================== -->
+        <!-- =================================================
+             SOBRE NÓS
+             ================================================= -->
+
         <section
             class="section about"
             id="sobre"
@@ -252,7 +316,8 @@
 
             <div class="container about-grid">
 
-                <!-- Cartão de destaque -->
+
+                <!-- CARTÃO DE DESTAQUE -->
                 <div class="about-card">
 
                     <span class="eyebrow">
@@ -261,6 +326,7 @@
 
                     <h2>
                         Mais sabor.<br>
+
                         <strong>
                             Mais vontade de voltar.
                         </strong>
@@ -269,12 +335,16 @@
                 </div>
 
 
-                <!-- Texto sobre a empresa -->
+                <!-- TEXTO -->
                 <div>
+
 
                     <div
                         class="section-head"
-                        style="text-align:left;margin-bottom:15px"
+                        style="
+                            text-align:left;
+                            margin-bottom:15px;
+                        "
                     >
 
                         <small>
@@ -288,24 +358,26 @@
                     </div>
 
 
-                    <!-- Texto atualizado dinamicamente -->
+                    <!-- Texto atualizado pelo JavaScript -->
                     <p
                         class="about-text"
                         id="aboutText"
                     >
-                        A BAKONGUINHO é uma hamburgueria pensada para quem aprecia
-                        boa comida.
+                        A BAKONGUINHO é uma hamburgueria pensada
+                        para quem aprecia boa comida.
                     </p>
 
                 </div>
 
             </div>
+
         </section>
 
 
-        <!-- =====================================================
-             GALERIA DE IMAGENS
-             ===================================================== -->
+        <!-- =================================================
+             GALERIA
+             ================================================= -->
+
         <section
             class="section"
             id="galeria"
@@ -313,7 +385,8 @@
 
             <div class="container">
 
-                <!-- Título da galeria -->
+
+                <!-- CABEÇALHO -->
                 <div class="section-head">
 
                     <small>
@@ -327,189 +400,211 @@
                 </div>
 
 
-                <!-- Galeria preenchida pelo JavaScript -->
+                <!-- GALERIA GERADA PELO JAVASCRIPT -->
                 <div
                     class="gallery"
                     id="gallery"
                 ></div>
 
             </div>
+
         </section>
 
 
-        <!-- =====================================================
+        <!-- =================================================
              AVALIAÇÕES DOS CLIENTES
-             ===================================================== -->
-       <!-- =====================================================
-     SECÇÃO DE AVALIAÇÕES DOS CLIENTES
-     ===================================================== -->
-<section class="section">
-
-    <div class="container">
-
-        <!-- Cabeçalho da secção -->
-        <div class="section-head">
-            <small>CLIENTES</small>
-
-            <h2>
-                O que dizem de nós
-            </h2>
-
-            <p>
-                A sua opinião é importante para nós.
-            </p>
-        </div>
-
-
-        <!-- =================================================
-             AVALIAÇÕES JÁ APROVADAS
              ================================================= -->
-        <div
-            class="reviews"
-            id="reviews"
-        ></div>
 
-
-        <!-- =================================================
-             FORMULÁRIO PARA NOVA AVALIAÇÃO
-             ================================================= -->
-        <div
-            class="review-form-wrap"
-            style="
-                max-width:720px;
-                margin:40px auto 0;
-                padding:30px;
-                border-radius:18px;
-                background:#fff;
-                box-shadow:0 15px 40px rgba(0,0,0,.08);
-            "
+        <section
+            class="section"
+            id="avaliacoes"
         >
 
-            <div
-                style="
-                    text-align:center;
-                    margin-bottom:25px;
-                "
-            >
-
-                <small>
-                    DEIXE A SUA OPINIÃO
-                </small>
-
-                <h3
-                    style="
-                        margin:8px 0;
-                    "
-                >
-                    Conte-nos como foi a sua experiência
-                </h3>
-
-                <p
-                    style="
-                        margin:0;
-                        opacity:.75;
-                    "
-                >
-                    A sua avaliação será analisada antes de aparecer no site.
-                </p>
-
-            </div>
+            <div class="container">
 
 
-            <!-- Formulário -->
-            <form
-                id="reviewForm"
-                class="form-card"
-            >
+                <!-- CABEÇALHO -->
+                <div class="section-head">
 
-                <!-- Nome -->
-                <label>
-                    Nome
+                    <small>
+                        CLIENTES
+                    </small>
 
-                    <input
-                        type="text"
-                        name="name"
-                        maxlength="100"
-                        placeholder="Digite o seu nome"
-                        required
-                    >
-                </label>
+                    <h2>
+                        O que dizem de nós
+                    </h2>
+
+                    <p>
+                        A sua opinião é importante para nós.
+                    </p>
+
+                </div>
 
 
-                <!-- Avaliação -->
-                <label>
-                    Avaliação
+                <!-- =================================================
+                     AVALIAÇÕES APROVADAS
+                     ================================================= -->
 
-                    <select
-                        name="rating"
-                        required
-                    >
-                        <option value="5">
-                            5 estrelas
-                        </option>
-
-                        <option value="4">
-                            4 estrelas
-                        </option>
-
-                        <option value="3">
-                            3 estrelas
-                        </option>
-
-                        <option value="2">
-                            2 estrelas
-                        </option>
-
-                        <option value="1">
-                            1 estrela
-                        </option>
-                    </select>
-                </label>
-
-
-                <!-- Comentário -->
-                <label>
-                    Comentário
-
-                    <textarea
-                        name="comment"
-                        rows="5"
-                        maxlength="1000"
-                        placeholder="Escreva aqui a sua opinião..."
-                        required
-                    ></textarea>
-                </label>
-
-
-                <!-- Mensagem de retorno -->
                 <div
-                    id="reviewMessage"
-                    style="
-                        margin-bottom:15px;
-                    "
+                    class="reviews"
+                    id="reviews"
                 ></div>
 
 
-                <!-- Botão -->
-                <button
-                    type="submit"
-                    class="btn btn-primary"
+                <!-- =================================================
+                     FORMULÁRIO DE AVALIAÇÃO
+                     ================================================= -->
+
+                <div
+                    class="review-form-wrap"
+                    style="
+                        max-width:720px;
+                        margin:40px auto 0;
+                        padding:30px;
+                        border-radius:18px;
+                        background:#fff;
+                        box-shadow:0 15px 40px rgba(0,0,0,.08);
+                    "
                 >
-                    Enviar avaliação
-                </button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</section>
 
 
-        <!-- =====================================================
+                    <!-- CABEÇALHO DO FORMULÁRIO -->
+                    <div
+                        style="
+                            text-align:center;
+                            margin-bottom:25px;
+                        "
+                    >
+
+                        <small>
+                            DEIXE A SUA OPINIÃO
+                        </small>
+
+                        <h3
+                            style="
+                                margin:8px 0;
+                            "
+                        >
+                            Conte-nos como foi a sua experiência
+                        </h3>
+
+                        <p
+                            style="
+                                margin:0;
+                                opacity:.75;
+                            "
+                        >
+                            A sua avaliação será analisada
+                            antes de aparecer no site.
+                        </p>
+
+                    </div>
+
+
+                    <!-- FORMULÁRIO -->
+                    <form
+                        id="reviewForm"
+                        class="form-card"
+                    >
+
+
+                        <!-- NOME -->
+                        <label>
+
+                            Nome
+
+                            <input
+                                type="text"
+                                name="name"
+                                maxlength="100"
+                                placeholder="Digite o seu nome"
+                                required
+                            >
+
+                        </label>
+
+
+                        <!-- CLASSIFICAÇÃO -->
+                        <label>
+
+                            Avaliação
+
+                            <select
+                                name="rating"
+                                required
+                            >
+
+                                <option value="5">
+                                    ★★★★★ — 5 estrelas
+                                </option>
+
+                                <option value="4">
+                                    ★★★★☆ — 4 estrelas
+                                </option>
+
+                                <option value="3">
+                                    ★★★☆☆ — 3 estrelas
+                                </option>
+
+                                <option value="2">
+                                    ★★☆☆☆ — 2 estrelas
+                                </option>
+
+                                <option value="1">
+                                    ★☆☆☆☆ — 1 estrela
+                                </option>
+
+                            </select>
+
+                        </label>
+
+
+                        <!-- COMENTÁRIO -->
+                        <label>
+
+                            Comentário
+
+                            <textarea
+                                name="comment"
+                                rows="5"
+                                maxlength="1000"
+                                placeholder="Escreva aqui a sua opinião..."
+                                required
+                            ></textarea>
+
+                        </label>
+
+
+                        <!-- MENSAGEM -->
+                        <div
+                            id="reviewMessage"
+                            style="
+                                margin-bottom:15px;
+                            "
+                        ></div>
+
+
+                        <!-- BOTÃO DE ENVIO -->
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Enviar avaliação
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
              CONTACTOS
-             ===================================================== -->
+             ================================================= -->
+
         <section
             class="section contact"
             id="contactos"
@@ -518,7 +613,7 @@
             <div class="container contact-grid">
 
 
-                <!-- Área para fazer pedido -->
+                <!-- FAZER PEDIDO -->
                 <div>
 
                     <span class="eyebrow">
@@ -535,7 +630,7 @@
                     </p>
 
 
-                    <!-- Botão WhatsApp -->
+                    <!-- WHATSAPP -->
                     <a
                         class="btn btn-primary"
                         href="https://wa.me/244923850875"
@@ -548,42 +643,52 @@
                 </div>
 
 
-                <!-- Informações de contacto -->
+                <!-- INFORMAÇÕES -->
                 <div>
 
-                    <!-- Endereço -->
+
+                    <!-- ENDEREÇO -->
                     <p>
+
                         📍
+
                         <span id="address">
-                            Seleque - Maye Maye, quadra E, Sequele,
-                            Icolo Bengo, Angola
+                            Seleque - Maye Maye, quadra E,
+                            Sequele, Icolo Bengo, Angola
                         </span>
+
                     </p>
 
 
-                    <!-- Telefone -->
+                    <!-- TELEFONE -->
                     <p>
+
                         📞
+
                         <span id="phone">
                             923 850 875
                         </span>
+
                     </p>
 
 
-                    <!-- Horário -->
+                    <!-- HORÁRIO -->
                     <p>
+
                         🕐
+
                         <span id="hours">
                             Aberto até às 22:00
                         </span>
+
                     </p>
 
 
-                    <!-- Google Maps -->
+                    <!-- GOOGLE MAPS -->
                     <a
                         class="btn btn-glass"
                         id="maps"
-                        href=https://www.google.com/maps/place/Hamburguer+BAKONGINHO/@-8.8938364,13.5157143,285m/data=!3m1!1e3!4m5!3m4!1s0x1a51ff943b54e54b:0x81f5bb624b697ee3!8m2!3d-8.8939491!4d13.5157987?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D
+                        href="https://www.google.com/maps/place/Hamburguer+BAKONGINHO/@-8.8938364,13.5157143,285m/data=!3m1!1e3!4m5!3m4!1s0x1a51ff943b54e54b:0x81f5bb624b697ee3!8m2!3d-8.8939491!4d13.5157987?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
@@ -593,20 +698,25 @@
                 </div>
 
             </div>
+
         </section>
 
     </main>
 
 
-    <!-- =========================================================
+    <!-- =====================================================
          RODAPÉ
-         ========================================================= -->
+         ===================================================== -->
+
     <footer class="footer">
 
         <div class="container footer-grid">
 
 
-            <!-- Marca / logo -->
+            <!-- =================================================
+                 MARCA
+                 ================================================= -->
+
             <div class="footer-brand">
 
                 <img
@@ -619,7 +729,7 @@
                 </p>
 
 
-                <!-- WhatsApp -->
+                <!-- WHATSAPP -->
                 <a
                     class="footer-wa"
                     href="https://wa.me/244923850875"
@@ -632,7 +742,10 @@
             </div>
 
 
-            <!-- Links rápidos -->
+            <!-- =================================================
+                 LINKS RÁPIDOS
+                 ================================================= -->
+
             <div>
 
                 <h4>
@@ -651,6 +764,10 @@
                     Galeria
                 </a>
 
+                <a href="#avaliacoes">
+                    Avaliações
+                </a>
+
                 <a href="#contactos">
                     Contactos
                 </a>
@@ -658,37 +775,51 @@
             </div>
 
 
-            <!-- Contacto -->
+            <!-- =================================================
+                 CONTACTO
+                 ================================================= -->
+
             <div>
 
                 <h4>
                     Contacto
                 </h4>
 
+
                 <p>
                     📞 923 850 875
                 </p>
 
+
                 <p>
                     📍 Icolo Bengo, Angola
                 </p>
-                  <a
-    href="httpshttps://www.facebook.com/profile.php?id=61594183235243"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Facebook"
->
-    <img
-        src="assets/images/facebook.svg"
-        alt="Facebook"
-        width="24"
-        height="24"
-    >
-</a>
+
+
+                <!-- FACEBOOK -->
+                <a
+                    href="https://www.facebook.com/profile.php?id=61594183235243"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                >
+
+                    <img
+                        src="assets/images/facebook.svg"
+                        alt="Facebook"
+                        width="24"
+                        height="24"
+                    >
+
+                </a>
+
             </div>
 
 
-            <!-- Horário -->
+            <!-- =================================================
+                 HORÁRIO
+                 ================================================= -->
+
             <div>
 
                 <h4>
@@ -708,19 +839,28 @@
         </div>
 
 
-        <!-- Copyright -->
+        <!-- =================================================
+             COPYRIGHT
+             ================================================= -->
+
         <div class="copyright">
 
             <div class="container copyright-inner">
 
                 <span>
+
                     ©
+
                     <span id="year"></span>
-                    BAKONGUINHO. Todos os direitos reservados.
+
+                    BAKONGUINHO.
+                    Todos os direitos reservados.
+
                 </span>
 
+
                 <span>
-                    Eladorado por Eduardo Lelo
+                    Elaborado por Eduardo Lelo
                 </span>
 
             </div>
@@ -730,11 +870,13 @@
     </footer>
 
 
-    <!-- =========================================================
+    <!-- =====================================================
          JAVASCRIPT PRINCIPAL
-         ========================================================= -->
+         ===================================================== -->
+
     <script src="assets/js/app.js"></script>
 
 </body>
+
 </html>
 ```
