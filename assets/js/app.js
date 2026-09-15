@@ -1,20 +1,6 @@
-```javascript
 /* =========================================================
    BAKONGUINHO - FRONTEND
    Arquivo: assets/js/app.js
-
-   Responsabilidades deste arquivo:
-   - Carregar dados do backend
-   - Utilizar dados de reserva (fallback)
-   - Mostrar produtos
-   - Filtrar produtos por categoria
-   - Mostrar galeria
-   - Mostrar avaliações
-   - Atualizar informações do site
-   - Controlar o menu mobile
-
-   IMPORTANTE:
-   O visual do site não é alterado por este arquivo.
    ========================================================= */
 
 
@@ -22,18 +8,11 @@
    1. FUNÇÕES AUXILIARES
    ========================================================= */
 
-/**
- * Atalho para selecionar um elemento do HTML.
- */
+// Atalho para selecionar elementos do HTML
 const $ = (selector) => document.querySelector(selector);
 
 
-/**
- * Formata valores monetários em Kwanza.
- *
- * Exemplo:
- * 2500 -> 2 500 Kz
- */
+// Formatar valores em Kwanza
 const money = (value) =>
     new Intl.NumberFormat("pt-AO", {
         style: "currency",
@@ -44,11 +23,7 @@ const money = (value) =>
         .replace("AOA", "Kz");
 
 
-/**
- * Protege textos que serão inseridos diretamente no HTML.
- *
- * Evita problemas com caracteres especiais.
- */
+// Escapar caracteres especiais antes de inserir HTML
 const esc = (value) =>
     String(value ?? "").replace(
         /[&<>"']/g,
@@ -62,391 +37,227 @@ const esc = (value) =>
     );
 
 
-/**
- * Define uma imagem padrão caso o produto não tenha imagem.
- */
+// Imagem padrão caso o produto não tenha imagem
 const img = (path) =>
     path || "assets/images/logo.jpeg";
 
 
 /* =========================================================
-   2. DADOS DE RESERVA - FALLBACK
+   2. DADOS DE RESERVA (FALLBACK)
    ---------------------------------------------------------
-   Estes dados são utilizados quando:
-   - O Render está a acordar;
-   - A API está temporariamente indisponível;
-   - Existe algum problema de ligação.
-
-   Assim o site não fica vazio.
+   Usados quando o backend demora ou não responde.
    ========================================================= */
 
 const fallback = {
 
-    /* -------------------------------------------------------
-       Configurações gerais do site
-       ------------------------------------------------------- */
+    // Configurações gerais do site
     settings: {
-        hero_title:
-            "O sabor que dá vontade de voltar",
-
+        hero_title: "O sabor que dá vontade de voltar",
         hero_text:
             "Hambúrgueres preparados com sabor, qualidade e aquele toque especial da BAKONGUINHO.",
-
         about_text:
             "A BAKONGUINHO é uma hamburgueria pensada para quem aprecia boa comida, hambúrgueres saborosos e momentos especiais.",
-
         address:
             "Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola",
-
-        phone:
-            "923 850 875",
-
-        hours:
-            "Aberto até às 22:00",
-
-        maps_url:
-            "https://maps.google.com",
-
-        review_count:
-            6
+        phone: "923 850 875",
+        hours: "Aberto até às 22:00",
+        maps_url: "https://maps.google.com",
+        review_count: 6
     },
 
 
-    /* -------------------------------------------------------
-       Categorias de produtos
-       ------------------------------------------------------- */
+    // Categorias de produtos
     categories: [
-
         {
             id: 1,
             name: "Hambúrgueres"
         },
-
         {
             id: 2,
             name: "Churrasco"
         },
-
         {
             id: 3,
             name: "Acompanhamentos"
         },
-
         {
             id: 4,
             name: "Bebidas"
         },
-
         {
             id: 5,
             name: "Especiais"
         }
-
     ],
 
 
-    /* -------------------------------------------------------
-       Produtos de reserva
-       ------------------------------------------------------- */
+    // Produtos de reserva
     products: [
-
         {
             category_id: 1,
-
-            name:
-                "Double Cheeseburger",
-
-            description:
-                "Hambúrguer duplo artesanal.",
-
-            price:
-                2500,
-
+            name: "Double Cheeseburger",
+            description: "Hambúrguer duplo artesanal.",
+            price: 2500,
             image:
                 "assets/images/produto_20260911_153446_04612a9283.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
+            featured: 1,
+            active: 1
         },
-
 
         {
             category_id: 1,
-
-            name:
-                "Crispy Chicken",
-
-            description:
-                "Frango crocante num pão brioche.",
-
-            price:
-                2200,
-
+            name: "Crispy Chicken",
+            description: "Frango crocante num pão brioche.",
+            price: 2200,
             image:
                 "assets/images/produto_20260911_153558_482ad29e45.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
+            featured: 1,
+            active: 1
         },
-
 
         {
             category_id: 1,
-
-            name:
-                "Bacon Gourmet",
-
-            description:
-                "Hambúrguer gourmet com queijo e bacon.",
-
-            price:
-                2800,
-
+            name: "Bacon Gourmet",
+            description: "Hambúrguer gourmet com queijo e bacon.",
+            price: 2800,
             image:
                 "assets/images/produto_20260911_155619_7b9b217736.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
+            featured: 1,
+            active: 1
         },
-
 
         {
             category_id: 2,
-
-            name:
-                "No nosso churrasco",
-
-            description:
-                "Especialidade preparada na brasa.",
-
-            price:
-                3500,
-
+            name: "No nosso churrasco",
+            description: "Especialidade preparada na brasa.",
+            price: 3500,
             image:
                 "assets/images/produto_20260911_161351_5d26f0bdb1.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
+            featured: 1,
+            active: 1
         },
-
 
         {
             category_id: 5,
-
-            name:
-                "Smash Sliders",
-
-            description:
-                "Mini hambúrgueres smash.",
-
-            price:
-                2000,
-
+            name: "Smash Sliders",
+            description: "Mini hambúrgueres smash.",
+            price: 2000,
             image:
                 "assets/images/products/bakonguinho.jfif",
-
-            active:
-                1
+            active: 1
         },
-
 
         {
             category_id: 5,
-
-            name:
-                "Cheeseburger Clássica",
-
-            description:
-                "Receita clássica americana.",
-
-            price:
-                2000,
-
+            name: "Cheeseburger Clássica",
+            description: "Receita clássica americana.",
+            price: 2000,
             image:
                 "assets/images/products/bakonguinho2.jfif",
-
-            active:
-                1
+            active: 1
         }
-
     ],
 
 
-    /* -------------------------------------------------------
-       Galeria de reserva
-       ------------------------------------------------------- */
+    // Galeria de reserva
     gallery: [],
 
 
-    /* -------------------------------------------------------
-       Avaliações de reserva
-       ------------------------------------------------------- */
+    // Avaliações de reserva
     reviews: [
-
         {
-            name:
-                "Cliente BAKONGUINHO",
-
-            comment:
-                "A sua opinião é importante para nós.",
-
-            rating:
-                5,
-
-            active:
-                1
+            name: "Cliente BAKONGUINHO",
+            comment: "A sua opinião é importante para nós.",
+            rating: 5,
+            active: 1
         }
-
     ]
-
 };
 
 
 /* =========================================================
-   3. OBTER DADOS DA API
+   3. OBTER DADOS DO BACKEND
+   ---------------------------------------------------------
+   Existe um limite de 5 segundos para evitar que o menu
+   fique preso à espera do Render.
    ========================================================= */
 
-/**
- * Busca os dados atuais do backend.
- *
- * Existe um limite de 5 segundos para não deixar o site
- * preso indefinidamente caso o Render demore a responder.
- */
 async function getSite() {
 
     try {
 
-        /* ---------------------------------------------------
-           Controlador para limitar o tempo da requisição
-           --------------------------------------------------- */
-
-        const controller =
-            new AbortController();
+        // Controlador para cancelar a requisição
+        const controller = new AbortController();
 
 
-        /* ---------------------------------------------------
-           Depois de 5 segundos, cancelar a requisição
-           --------------------------------------------------- */
-
-        const timeout =
-            setTimeout(() => {
-                controller.abort();
-            }, 5000);
+        // Tempo máximo de espera: 5 segundos
+        const timeout = setTimeout(() => {
+            controller.abort();
+        }, 5000);
 
 
-        /* ---------------------------------------------------
-           Fazer pedido à API
-           --------------------------------------------------- */
-
-        const response =
-            await fetch("/api/site", {
-                cache: "no-store",
-                signal: controller.signal
-            });
+        // Buscar dados do backend
+        const response = await fetch("/api/site", {
+            cache: "no-store",
+            signal: controller.signal
+        });
 
 
-        /* ---------------------------------------------------
-           Limpar temporizador
-           --------------------------------------------------- */
-
+        // Limpar o temporizador
         clearTimeout(timeout);
 
 
-        /* ---------------------------------------------------
-           Verificar resposta
-           --------------------------------------------------- */
-
+        // Verificar se a resposta foi bem sucedida
         if (!response.ok) {
-            throw new Error(
-                "Não foi possível carregar a API."
-            );
+            throw new Error("Erro ao carregar a API.");
         }
 
 
-        /* ---------------------------------------------------
-           Devolver dados do backend
-           --------------------------------------------------- */
-
+        // Devolver os dados recebidos
         return await response.json();
 
     } catch (error) {
 
-        /* ---------------------------------------------------
-           Se houver erro, usar os dados locais.
-           O site continua funcionando.
-           --------------------------------------------------- */
-
+        // Utilizar fallback em caso de erro
         return fallback;
     }
 }
 
 
 /* =========================================================
-   4. MOSTRAR CATEGORIAS
+   4. MOSTRAR FILTROS DAS CATEGORIAS
    ========================================================= */
 
-/**
- * Cria os botões das categorias.
- *
- * O botão "Todos" aparece sempre.
- */
 function renderFilters(categories) {
 
-    const filters =
-        $("#filters");
+    const filters = $("#filters");
 
 
-    /* -------------------------------------------------------
-       Verificar se o elemento existe
-       ------------------------------------------------------- */
-
+    // Verificar se o elemento existe
     if (!filters) {
         return;
     }
 
 
-    /* -------------------------------------------------------
-       Garantir que temos um array
-       ------------------------------------------------------- */
-
-    const cats =
-        Array.isArray(categories)
-            ? categories
-            : [];
+    // Garantir que temos uma lista
+    const list = Array.isArray(categories)
+        ? categories
+        : [];
 
 
-    /* -------------------------------------------------------
-       Criar o botão "Todos"
-       ------------------------------------------------------- */
-
-    let html =
-        `
+    // Criar o botão "Todos"
+    let html = `
         <button
             class="filter active"
             data-cat="all"
         >
             Todos
         </button>
-        `;
+    `;
 
 
-    /* -------------------------------------------------------
-       Criar os restantes botões
-       ------------------------------------------------------- */
-
-    html += cats
+    // Criar os botões das categorias
+    html += list
         .map(
             (category) => `
                 <button
@@ -460,38 +271,23 @@ function renderFilters(categories) {
         .join("");
 
 
-    /* -------------------------------------------------------
-       Inserir no HTML
-       ------------------------------------------------------- */
-
-    filters.innerHTML =
-        html;
+    // Inserir filtros no HTML
+    filters.innerHTML = html;
 }
 
 
 /* =========================================================
-   5. APLICAR FILTRO DOS PRODUTOS
+   5. CONFIGURAR FILTROS
+   ---------------------------------------------------------
+   Esta é a correção principal do problema.
+
+   Antes:
+       p.dataset.cat === p.dataset.category
+
+   Agora:
+       p.dataset.category === b.dataset.cat
    ========================================================= */
 
-/**
- * Aplica o filtro selecionado aos produtos.
- *
- * CORREÇÃO:
- * Antes o código comparava:
- *
- *     p.dataset.cat
- *
- * mas o produto possui:
- *
- *     data-category
- *
- * Agora a comparação é feita corretamente:
- *
- *     p.dataset.category === b.dataset.cat
- *
- * Também utilizamos String() para evitar problemas quando
- * uma categoria vem como número e outra como texto.
- */
 function setupFilters() {
 
     document
@@ -500,10 +296,7 @@ function setupFilters() {
 
             button.onclick = () => {
 
-                /* -------------------------------------------
-                   Remover "active" de todos os botões
-                   ------------------------------------------- */
-
+                // Remover "active" de todos os filtros
                 document
                     .querySelectorAll(".filter")
                     .forEach((item) => {
@@ -511,153 +304,103 @@ function setupFilters() {
                     });
 
 
-                /* -------------------------------------------
-                   Ativar o botão selecionado
-                   ------------------------------------------- */
-
+                // Ativar o botão clicado
                 button.classList.add("active");
 
 
-                /* -------------------------------------------
-                   Categoria selecionada
-                   ------------------------------------------- */
-
+                // Categoria escolhida
                 const selectedCategory =
                     String(button.dataset.cat);
 
 
-                /* -------------------------------------------
-                   Percorrer todos os produtos
-                   ------------------------------------------- */
-
+                // Percorrer todos os produtos
                 document
                     .querySelectorAll(".product")
                     .forEach((product) => {
 
+                        // Categoria do produto
                         const productCategory =
                             String(
                                 product.dataset.category || ""
                             );
 
 
-                        /* -------------------------------------
-                           Se "Todos" estiver selecionado,
-                           mostrar todos os produtos.
-
-                           Caso contrário, mostrar somente
-                           os produtos da categoria escolhida.
-                           ------------------------------------- */
-
+                        // Mostrar todos quando "Todos" estiver selecionado
+                        // Caso contrário, comparar categorias
                         const shouldShow =
                             selectedCategory === "all" ||
                             productCategory === selectedCategory;
 
 
-                        /* -------------------------------------
-                           Mostrar ou esconder
-                           ------------------------------------- */
-
+                        // Mostrar ou esconder produto
                         product.style.display =
                             shouldShow
                                 ? ""
                                 : "none";
                     });
             };
-
         });
 }
 
 
 /* =========================================================
-   6. CARREGAR PRODUTOS INICIALMENTE
+   6. MOSTRAR MENU IMEDIATAMENTE
+   ---------------------------------------------------------
+   Evita que o utilizador fique a ver "A carregar menu..."
+   enquanto o Render responde.
    ========================================================= */
 
-/**
- * Mostra os produtos locais imediatamente.
- *
- * Isso evita que o cliente fique muito tempo a ver:
- *
- * "A carregar menu..."
- */
 function showFallbackMenuImmediately() {
 
-    /* -------------------------------------------------------
-       Mostrar categorias
-       ------------------------------------------------------- */
-
+    // Mostrar categorias imediatamente
     renderFilters(
         fallback.categories
     );
 
 
-    /* -------------------------------------------------------
-       Mostrar produtos locais
-       ------------------------------------------------------- */
-
+    // Mostrar produtos imediatamente
     renderProducts(
         fallback.products
     );
 
 
-    /* -------------------------------------------------------
-       Configurar os filtros
-       ------------------------------------------------------- */
-
+    // Ativar filtros
     setupFilters();
 }
 
 
 /* =========================================================
-   7. CARREGAR O SITE COMPLETO
+   7. CARREGAR INFORMAÇÕES DO SITE
    ========================================================= */
 
-/**
- * Atualiza todos os dados utilizando o backend.
- */
 async function loadSite() {
 
-    /* -------------------------------------------------------
-       IMPORTANTE:
-       O fallback já foi mostrado antes desta função.
-
-       Portanto o menu aparece imediatamente.
-
-       Agora apenas atualizamos com os dados do backend.
-       ------------------------------------------------------- */
-
-    const data =
-        await getSite();
+    // Obter dados atualizados
+    const data = await getSite();
 
 
-    /* -------------------------------------------------------
-       Configurações
-       ------------------------------------------------------- */
-
+    // Configurações
     const settings =
         data.settings ||
         fallback.settings;
 
 
     /* -------------------------------------------------------
-       Hero
+       HERO
        ------------------------------------------------------- */
 
-    const heroTitle =
-        $("#heroTitle");
+    const heroTitle = $("#heroTitle");
 
     if (heroTitle) {
-
         heroTitle.textContent =
             settings.hero_title ||
             fallback.settings.hero_title;
     }
 
 
-    const heroText =
-        $("#heroText");
+    const heroText = $("#heroText");
 
     if (heroText) {
-
         heroText.textContent =
             settings.hero_text ||
             "";
@@ -665,14 +408,12 @@ async function loadSite() {
 
 
     /* -------------------------------------------------------
-       Sobre nós
+       SOBRE NÓS
        ------------------------------------------------------- */
 
-    const aboutText =
-        $("#aboutText");
+    const aboutText = $("#aboutText");
 
     if (aboutText) {
-
         aboutText.textContent =
             settings.about_text ||
             "";
@@ -680,14 +421,12 @@ async function loadSite() {
 
 
     /* -------------------------------------------------------
-       Endereço
+       ENDEREÇO
        ------------------------------------------------------- */
 
-    const address =
-        $("#address");
+    const address = $("#address");
 
     if (address) {
-
         address.textContent =
             settings.address ||
             "";
@@ -695,14 +434,12 @@ async function loadSite() {
 
 
     /* -------------------------------------------------------
-       Telefone
+       TELEFONE
        ------------------------------------------------------- */
 
-    const phone =
-        $("#phone");
+    const phone = $("#phone");
 
     if (phone) {
-
         phone.textContent =
             settings.phone ||
             "";
@@ -710,14 +447,12 @@ async function loadSite() {
 
 
     /* -------------------------------------------------------
-       Horário
+       HORÁRIO
        ------------------------------------------------------- */
 
-    const hours =
-        $("#hours");
+    const hours = $("#hours");
 
     if (hours) {
-
         hours.textContent =
             settings.hours ||
             "";
@@ -725,14 +460,12 @@ async function loadSite() {
 
 
     /* -------------------------------------------------------
-       Google Maps
+       GOOGLE MAPS
        ------------------------------------------------------- */
 
-    const maps =
-        $("#maps");
+    const maps = $("#maps");
 
     if (maps) {
-
         maps.href =
             settings.maps_url ||
             "#";
@@ -740,14 +473,13 @@ async function loadSite() {
 
 
     /* -------------------------------------------------------
-       Número de avaliações
+       AVALIAÇÕES
        ------------------------------------------------------- */
 
     const reviewCount =
         $("#reviewCount");
 
     if (reviewCount) {
-
         reviewCount.textContent =
             (settings.review_count || 6) +
             " avaliações";
@@ -767,13 +499,8 @@ async function loadSite() {
             : fallback.categories;
 
 
-    /* -------------------------------------------------------
-       Mostrar categorias
-       ------------------------------------------------------- */
-
-    renderFilters(
-        categories
-    );
+    // Mostrar categorias
+    renderFilters(categories);
 
 
     /* =======================================================
@@ -789,19 +516,11 @@ async function loadSite() {
             : fallback.products;
 
 
-    /* -------------------------------------------------------
-       Mostrar produtos
-       ------------------------------------------------------- */
-
-    renderProducts(
-        products
-    );
+    // Mostrar produtos
+    renderProducts(products);
 
 
-    /* -------------------------------------------------------
-       Reativar filtros depois de atualizar os produtos
-       ------------------------------------------------------- */
-
+    // Reativar filtros
     setupFilters();
 
 
@@ -815,9 +534,7 @@ async function loadSite() {
             : fallback.gallery;
 
 
-    renderGallery(
-        gallery
-    );
+    renderGallery(gallery);
 
 
     /* =======================================================
@@ -830,9 +547,7 @@ async function loadSite() {
             : fallback.reviews;
 
 
-    renderReviews(
-        reviews
-    );
+    renderReviews(reviews);
 }
 
 
@@ -840,28 +555,19 @@ async function loadSite() {
    8. RENDERIZAR PRODUTOS
    ========================================================= */
 
-/**
- * Cria os cartões dos produtos.
- */
 function renderProducts(products) {
 
     const container =
         $("#products");
 
 
-    /* -------------------------------------------------------
-       Verificar se o elemento existe
-       ------------------------------------------------------- */
-
+    // Verificar se o elemento existe
     if (!container) {
         return;
     }
 
 
-    /* -------------------------------------------------------
-       Garantir que recebemos um array
-       ------------------------------------------------------- */
-
+    // Garantir lista
     const list =
         Array.isArray(products)
             ? products
@@ -869,113 +575,101 @@ function renderProducts(products) {
 
 
     /* -------------------------------------------------------
-       Se não existirem produtos
+       Nenhum produto
        ------------------------------------------------------- */
 
     if (!list.length) {
 
-        container.innerHTML =
-            `
+        container.innerHTML = `
             <div class="empty">
                 Nenhum produto disponível.
             </div>
-            `;
+        `;
 
         return;
     }
 
 
     /* -------------------------------------------------------
-       Criar HTML dos produtos
+       Criar cartões dos produtos
        ------------------------------------------------------- */
 
     container.innerHTML =
         list
-            .map(
-                (product) => {
+            .map((product) => {
 
-                    /* ---------------------------------------
-                       Categoria do produto
-                       --------------------------------------- */
-
-                    const categoryId =
-                        product.category_id ?? "";
+                // Categoria do produto
+                const categoryId =
+                    product.category_id ?? "";
 
 
-                    /* ---------------------------------------
-                       Imagem do produto
-                       --------------------------------------- */
-
-                    const image =
-                        product.image
-                            ? `
-                                <img
-                                    src="${esc(
-                                        img(product.image)
-                                    )}"
-                                    alt="${esc(
-                                        product.name
-                                    )}"
-                                    loading="lazy"
-                                    onerror="
-                                        this.style.display='none'
-                                    "
-                                >
-                              `
-                            : `
-                                <div class="empty">
-                                    Sem imagem
-                                </div>
-                              `;
-
-
-                    /* ---------------------------------------
-                       Cartão completo
-                       --------------------------------------- */
-
-                    return `
-                        <article
-                            class="product"
-                            data-category="${esc(
-                                categoryId
-                            )}"
-                        >
-
-                            <!-- Imagem do produto -->
-                            <div class="product-img">
-                                ${image}
+                // Imagem
+                const image =
+                    product.image
+                        ? `
+                            <img
+                                src="${esc(
+                                    img(product.image)
+                                )}"
+                                alt="${esc(
+                                    product.name
+                                )}"
+                                loading="lazy"
+                                onerror="
+                                    this.style.display='none'
+                                "
+                            >
+                          `
+                        : `
+                            <div class="empty">
+                                Sem imagem
                             </div>
+                          `;
 
 
-                            <!-- Informações do produto -->
-                            <div class="product-body">
+                // Cartão do produto
+                return `
+                    <article
+                        class="product"
+                        data-category="${esc(
+                            categoryId
+                        )}"
+                    >
 
-                                <!-- Nome -->
-                                <h3>
-                                    ${esc(product.name)}
-                                </h3>
-
-
-                                <!-- Descrição -->
-                                <p>
-                                    ${esc(
-                                        product.description || ""
-                                    )}
-                                </p>
+                        <!-- Imagem -->
+                        <div class="product-img">
+                            ${image}
+                        </div>
 
 
-                                <!-- Preço -->
-                                <span class="price">
-                                    A partir de
-                                    ${money(product.price)}
-                                </span>
+                        <!-- Informações -->
+                        <div class="product-body">
 
-                            </div>
+                            <!-- Nome -->
+                            <h3>
+                                ${esc(product.name)}
+                            </h3>
 
-                        </article>
-                    `;
-                }
-            )
+
+                            <!-- Descrição -->
+                            <p>
+                                ${esc(
+                                    product.description || ""
+                                )}
+                            </p>
+
+
+                            <!-- Preço -->
+                            <span class="price">
+                                A partir de
+                                ${money(product.price)}
+                            </span>
+
+                        </div>
+
+                    </article>
+                `;
+            })
             .join("");
 }
 
@@ -984,47 +678,39 @@ function renderProducts(products) {
    9. RENDERIZAR GALERIA
    ========================================================= */
 
-/**
- * Mostra as imagens da galeria.
- */
 function renderGallery(galleryItems) {
 
     const container =
         $("#gallery");
 
 
+    // Verificar elemento
     if (!container) {
         return;
     }
 
 
+    // Garantir lista
     const list =
         Array.isArray(galleryItems)
             ? galleryItems
             : [];
 
 
-    /* -------------------------------------------------------
-       Sem imagens
-       ------------------------------------------------------- */
-
+    // Galeria vazia
     if (!list.length) {
 
-        container.innerHTML =
-            `
+        container.innerHTML = `
             <div class="empty">
                 Galeria disponível em breve.
             </div>
-            `;
+        `;
 
         return;
     }
 
 
-    /* -------------------------------------------------------
-       Criar galeria
-       ------------------------------------------------------- */
-
+    // Criar galeria
     container.innerHTML =
         list
             .map(
@@ -1050,119 +736,87 @@ function renderGallery(galleryItems) {
    10. RENDERIZAR AVALIAÇÕES
    ========================================================= */
 
-/**
- * Mostra as avaliações dos clientes.
- */
 function renderReviews(reviewItems) {
 
     const container =
         $("#reviews");
 
 
+    // Verificar elemento
     if (!container) {
         return;
     }
 
 
+    // Garantir lista
     const list =
         Array.isArray(reviewItems)
             ? reviewItems
             : [];
 
 
-    /* -------------------------------------------------------
-       Sem avaliações
-       ------------------------------------------------------- */
-
+    // Sem avaliações
     if (!list.length) {
 
-        container.innerHTML =
-            `
+        container.innerHTML = `
             <div class="empty">
                 Ainda não há avaliações.
             </div>
-            `;
+        `;
 
         return;
     }
 
 
-    /* -------------------------------------------------------
-       Criar avaliações
-       ------------------------------------------------------- */
-
+    // Criar avaliações
     container.innerHTML =
         list
-            .map(
-                (review) => {
+            .map((review) => {
 
-                    /* ---------------------------------------
-                       Número de estrelas
-                       --------------------------------------- */
-
-                    const rating =
-                        Math.max(
-                            0,
-                            Math.min(
-                                5,
-                                Number(review.rating) || 5
-                            )
-                        );
+                // Garantir avaliação entre 0 e 5
+                const rating =
+                    Math.max(
+                        0,
+                        Math.min(
+                            5,
+                            Number(review.rating) || 5
+                        )
+                    );
 
 
-                    /* ---------------------------------------
-                       Estrelas preenchidas
-                       --------------------------------------- */
-
-                    const filledStars =
-                        "★".repeat(
-                            rating
-                        );
+                // Estrelas preenchidas
+                const filledStars =
+                    "★".repeat(rating);
 
 
-                    /* ---------------------------------------
-                       Estrelas vazias
-                       --------------------------------------- */
-
-                    const emptyStars =
-                        "☆".repeat(
-                            5 - rating
-                        );
+                // Estrelas vazias
+                const emptyStars =
+                    "☆".repeat(5 - rating);
 
 
-                    /* ---------------------------------------
-                       HTML da avaliação
-                       --------------------------------------- */
+                return `
+                    <article class="review">
 
-                    return `
-                        <article class="review">
-
-                            <!-- Estrelas -->
-                            <div class="stars">
-                                ${filledStars}
-                                ${emptyStars}
-                            </div>
+                        <!-- Estrelas -->
+                        <div class="stars">
+                            ${filledStars}${emptyStars}
+                        </div>
 
 
-                            <!-- Nome -->
-                            <h3>
-                                ${esc(
-                                    review.name
-                                )}
-                            </h3>
+                        <!-- Nome do cliente -->
+                        <h3>
+                            ${esc(review.name)}
+                        </h3>
 
 
-                            <!-- Comentário -->
-                            <p>
-                                “${esc(
-                                    review.comment
-                                )}”
-                            </p>
+                        <!-- Comentário -->
+                        <p>
+                            “${esc(review.comment)}”
+                        </p>
 
-                        </article>
-                    `;
-                }
-            )
+                    </article>
+                `;
+            })
             .join("");
 }
 
@@ -1171,50 +825,44 @@ function renderReviews(reviewItems) {
    11. MENU MOBILE
    ========================================================= */
 
-/**
- * Configura o menu mobile.
- */
 function setupMobileMenu() {
 
+    // Botão do menu
     const toggle =
         $(".menu-toggle");
 
+
+    // Menu de navegação
     const nav =
         $(".main-nav");
 
 
-    /* -------------------------------------------------------
-       Se os elementos não existirem, terminar
-       ------------------------------------------------------- */
-
+    // Verificar existência
     if (!toggle || !nav) {
         return;
     }
 
 
-    /* -------------------------------------------------------
-       Abrir / fechar menu
-       ------------------------------------------------------- */
-
+    // Abrir / fechar menu
     toggle.onclick = () => {
 
-        /* Alternar classe "open" */
+        // Alternar menu
         nav.classList.toggle("open");
 
 
-        /* Verificar estado */
+        // Verificar estado
         const isOpen =
             nav.classList.contains("open");
 
 
-        /* Atualizar acessibilidade */
+        // Atualizar acessibilidade
         toggle.setAttribute(
             "aria-expanded",
             isOpen
         );
 
 
-        /* Alterar ícone */
+        // Alterar ícone
         toggle.textContent =
             isOpen
                 ? "✕"
@@ -1222,10 +870,7 @@ function setupMobileMenu() {
     };
 
 
-    /* -------------------------------------------------------
-       Fechar menu ao clicar num link
-       ------------------------------------------------------- */
-
+    // Fechar menu quando clicar num link
     document
         .querySelectorAll(".main-nav a")
         .forEach((link) => {
@@ -1254,25 +899,22 @@ function setupMobileMenu() {
 
 
 /* =========================================================
-   12. INICIALIZAÇÃO
+   12. INICIALIZAÇÃO DO SITE
    ========================================================= */
 
-/**
- * Executado quando o HTML termina de carregar.
- */
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
         /* ---------------------------------------------------
-           1. Mostrar o menu local imediatamente
+           Mostrar imediatamente o menu local
            --------------------------------------------------- */
 
         showFallbackMenuImmediately();
 
 
         /* ---------------------------------------------------
-           2. Atualizar o ano do copyright
+           Atualizar ano do copyright
            --------------------------------------------------- */
 
         const year =
@@ -1286,2621 +928,16 @@ document.addEventListener(
 
 
         /* ---------------------------------------------------
-           3. Configurar menu mobile
+           Configurar menu mobile
            --------------------------------------------------- */
 
         setupMobileMenu();
 
 
         /* ---------------------------------------------------
-           4. Buscar dados atualizados do backend
+           Buscar dados atualizados do backend
            --------------------------------------------------- */
 
         loadSite();
     }
 );
-```
-```javascript
-/* =========================================================
-   BAKONGUINHO - FRONTEND
-   Arquivo: assets/js/app.js
-
-   Responsabilidades deste arquivo:
-   - Carregar dados do backend
-   - Utilizar dados de reserva (fallback)
-   - Mostrar produtos
-   - Filtrar produtos por categoria
-   - Mostrar galeria
-   - Mostrar avaliações
-   - Atualizar informações do site
-   - Controlar o menu mobile
-
-   IMPORTANTE:
-   O visual do site não é alterado por este arquivo.
-   ========================================================= */
-
-
-/* =========================================================
-   1. FUNÇÕES AUXILIARES
-   ========================================================= */
-
-/**
- * Atalho para selecionar um elemento do HTML.
- */
-const $ = (selector) => document.querySelector(selector);
-
-
-/**
- * Formata valores monetários em Kwanza.
- *
- * Exemplo:
- * 2500 -> 2 500 Kz
- */
-const money = (value) =>
-    new Intl.NumberFormat("pt-AO", {
-        style: "currency",
-        currency: "AOA",
-        maximumFractionDigits: 0
-    })
-        .format(Number(value) || 0)
-        .replace("AOA", "Kz");
-
-
-/**
- * Protege textos que serão inseridos diretamente no HTML.
- *
- * Evita problemas com caracteres especiais.
- */
-const esc = (value) =>
-    String(value ?? "").replace(
-        /[&<>"']/g,
-        (character) => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-        }[character])
-    );
-
-
-/**
- * Define uma imagem padrão caso o produto não tenha imagem.
- */
-const img = (path) =>
-    path || "assets/images/logo.jpeg";
-
-
-/* =========================================================
-   2. DADOS DE RESERVA - FALLBACK
-   ---------------------------------------------------------
-   Estes dados são utilizados quando:
-   - O Render está a acordar;
-   - A API está temporariamente indisponível;
-   - Existe algum problema de ligação.
-
-   Assim o site não fica vazio.
-   ========================================================= */
-
-const fallback = {
-
-    /* -------------------------------------------------------
-       Configurações gerais do site
-       ------------------------------------------------------- */
-    settings: {
-        hero_title:
-            "O sabor que dá vontade de voltar",
-
-        hero_text:
-            "Hambúrgueres preparados com sabor, qualidade e aquele toque especial da BAKONGUINHO.",
-
-        about_text:
-            "A BAKONGUINHO é uma hamburgueria pensada para quem aprecia boa comida, hambúrgueres saborosos e momentos especiais.",
-
-        address:
-            "Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola",
-
-        phone:
-            "923 850 875",
-
-        hours:
-            "Aberto até às 22:00",
-
-        maps_url:
-            "https://maps.google.com",
-
-        review_count:
-            6
-    },
-
-
-    /* -------------------------------------------------------
-       Categorias de produtos
-       ------------------------------------------------------- */
-    categories: [
-
-        {
-            id: 1,
-            name: "Hambúrgueres"
-        },
-
-        {
-            id: 2,
-            name: "Churrasco"
-        },
-
-        {
-            id: 3,
-            name: "Acompanhamentos"
-        },
-
-        {
-            id: 4,
-            name: "Bebidas"
-        },
-
-        {
-            id: 5,
-            name: "Especiais"
-        }
-
-    ],
-
-
-    /* -------------------------------------------------------
-       Produtos de reserva
-       ------------------------------------------------------- */
-    products: [
-
-        {
-            category_id: 1,
-
-            name:
-                "Double Cheeseburger",
-
-            description:
-                "Hambúrguer duplo artesanal.",
-
-            price:
-                2500,
-
-            image:
-                "assets/images/produto_20260911_153446_04612a9283.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 1,
-
-            name:
-                "Crispy Chicken",
-
-            description:
-                "Frango crocante num pão brioche.",
-
-            price:
-                2200,
-
-            image:
-                "assets/images/produto_20260911_153558_482ad29e45.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 1,
-
-            name:
-                "Bacon Gourmet",
-
-            description:
-                "Hambúrguer gourmet com queijo e bacon.",
-
-            price:
-                2800,
-
-            image:
-                "assets/images/produto_20260911_155619_7b9b217736.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 2,
-
-            name:
-                "No nosso churrasco",
-
-            description:
-                "Especialidade preparada na brasa.",
-
-            price:
-                3500,
-
-            image:
-                "assets/images/produto_20260911_161351_5d26f0bdb1.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 5,
-
-            name:
-                "Smash Sliders",
-
-            description:
-                "Mini hambúrgueres smash.",
-
-            price:
-                2000,
-
-            image:
-                "assets/images/products/bakonguinho.jfif",
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 5,
-
-            name:
-                "Cheeseburger Clássica",
-
-            description:
-                "Receita clássica americana.",
-
-            price:
-                2000,
-
-            image:
-                "assets/images/products/bakonguinho2.jfif",
-
-            active:
-                1
-        }
-
-    ],
-
-
-    /* -------------------------------------------------------
-       Galeria de reserva
-       ------------------------------------------------------- */
-    gallery: [],
-
-
-    /* -------------------------------------------------------
-       Avaliações de reserva
-       ------------------------------------------------------- */
-    reviews: [
-
-        {
-            name:
-                "Cliente BAKONGUINHO",
-
-            comment:
-                "A sua opinião é importante para nós.",
-
-            rating:
-                5,
-
-            active:
-                1
-        }
-
-    ]
-
-};
-
-
-/* =========================================================
-   3. OBTER DADOS DA API
-   ========================================================= */
-
-/**
- * Busca os dados atuais do backend.
- *
- * Existe um limite de 5 segundos para não deixar o site
- * preso indefinidamente caso o Render demore a responder.
- */
-async function getSite() {
-
-    try {
-
-        /* ---------------------------------------------------
-           Controlador para limitar o tempo da requisição
-           --------------------------------------------------- */
-
-        const controller =
-            new AbortController();
-
-
-        /* ---------------------------------------------------
-           Depois de 5 segundos, cancelar a requisição
-           --------------------------------------------------- */
-
-        const timeout =
-            setTimeout(() => {
-                controller.abort();
-            }, 5000);
-
-
-        /* ---------------------------------------------------
-           Fazer pedido à API
-           --------------------------------------------------- */
-
-        const response =
-            await fetch("/api/site", {
-                cache: "no-store",
-                signal: controller.signal
-            });
-
-
-        /* ---------------------------------------------------
-           Limpar temporizador
-           --------------------------------------------------- */
-
-        clearTimeout(timeout);
-
-
-        /* ---------------------------------------------------
-           Verificar resposta
-           --------------------------------------------------- */
-
-        if (!response.ok) {
-            throw new Error(
-                "Não foi possível carregar a API."
-            );
-        }
-
-
-        /* ---------------------------------------------------
-           Devolver dados do backend
-           --------------------------------------------------- */
-
-        return await response.json();
-
-    } catch (error) {
-
-        /* ---------------------------------------------------
-           Se houver erro, usar os dados locais.
-           O site continua funcionando.
-           --------------------------------------------------- */
-
-        return fallback;
-    }
-}
-
-
-/* =========================================================
-   4. MOSTRAR CATEGORIAS
-   ========================================================= */
-
-/**
- * Cria os botões das categorias.
- *
- * O botão "Todos" aparece sempre.
- */
-function renderFilters(categories) {
-
-    const filters =
-        $("#filters");
-
-
-    /* -------------------------------------------------------
-       Verificar se o elemento existe
-       ------------------------------------------------------- */
-
-    if (!filters) {
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Garantir que temos um array
-       ------------------------------------------------------- */
-
-    const cats =
-        Array.isArray(categories)
-            ? categories
-            : [];
-
-
-    /* -------------------------------------------------------
-       Criar o botão "Todos"
-       ------------------------------------------------------- */
-
-    let html =
-        `
-        <button
-            class="filter active"
-            data-cat="all"
-        >
-            Todos
-        </button>
-        `;
-
-
-    /* -------------------------------------------------------
-       Criar os restantes botões
-       ------------------------------------------------------- */
-
-    html += cats
-        .map(
-            (category) => `
-                <button
-                    class="filter"
-                    data-cat="${esc(category.id)}"
-                >
-                    ${esc(category.name)}
-                </button>
-            `
-        )
-        .join("");
-
-
-    /* -------------------------------------------------------
-       Inserir no HTML
-       ------------------------------------------------------- */
-
-    filters.innerHTML =
-        html;
-}
-
-
-/* =========================================================
-   5. APLICAR FILTRO DOS PRODUTOS
-   ========================================================= */
-
-/**
- * Aplica o filtro selecionado aos produtos.
- *
- * CORREÇÃO:
- * Antes o código comparava:
- *
- *     p.dataset.cat
- *
- * mas o produto possui:
- *
- *     data-category
- *
- * Agora a comparação é feita corretamente:
- *
- *     p.dataset.category === b.dataset.cat
- *
- * Também utilizamos String() para evitar problemas quando
- * uma categoria vem como número e outra como texto.
- */
-function setupFilters() {
-
-    document
-        .querySelectorAll(".filter")
-        .forEach((button) => {
-
-            button.onclick = () => {
-
-                /* -------------------------------------------
-                   Remover "active" de todos os botões
-                   ------------------------------------------- */
-
-                document
-                    .querySelectorAll(".filter")
-                    .forEach((item) => {
-                        item.classList.remove("active");
-                    });
-
-
-                /* -------------------------------------------
-                   Ativar o botão selecionado
-                   ------------------------------------------- */
-
-                button.classList.add("active");
-
-
-                /* -------------------------------------------
-                   Categoria selecionada
-                   ------------------------------------------- */
-
-                const selectedCategory =
-                    String(button.dataset.cat);
-
-
-                /* -------------------------------------------
-                   Percorrer todos os produtos
-                   ------------------------------------------- */
-
-                document
-                    .querySelectorAll(".product")
-                    .forEach((product) => {
-
-                        const productCategory =
-                            String(
-                                product.dataset.category || ""
-                            );
-
-
-                        /* -------------------------------------
-                           Se "Todos" estiver selecionado,
-                           mostrar todos os produtos.
-
-                           Caso contrário, mostrar somente
-                           os produtos da categoria escolhida.
-                           ------------------------------------- */
-
-                        const shouldShow =
-                            selectedCategory === "all" ||
-                            productCategory === selectedCategory;
-
-
-                        /* -------------------------------------
-                           Mostrar ou esconder
-                           ------------------------------------- */
-
-                        product.style.display =
-                            shouldShow
-                                ? ""
-                                : "none";
-                    });
-            };
-
-        });
-}
-
-
-/* =========================================================
-   6. CARREGAR PRODUTOS INICIALMENTE
-   ========================================================= */
-
-/**
- * Mostra os produtos locais imediatamente.
- *
- * Isso evita que o cliente fique muito tempo a ver:
- *
- * "A carregar menu..."
- */
-function showFallbackMenuImmediately() {
-
-    /* -------------------------------------------------------
-       Mostrar categorias
-       ------------------------------------------------------- */
-
-    renderFilters(
-        fallback.categories
-    );
-
-
-    /* -------------------------------------------------------
-       Mostrar produtos locais
-       ------------------------------------------------------- */
-
-    renderProducts(
-        fallback.products
-    );
-
-
-    /* -------------------------------------------------------
-       Configurar os filtros
-       ------------------------------------------------------- */
-
-    setupFilters();
-}
-
-
-/* =========================================================
-   7. CARREGAR O SITE COMPLETO
-   ========================================================= */
-
-/**
- * Atualiza todos os dados utilizando o backend.
- */
-async function loadSite() {
-
-    /* -------------------------------------------------------
-       IMPORTANTE:
-       O fallback já foi mostrado antes desta função.
-
-       Portanto o menu aparece imediatamente.
-
-       Agora apenas atualizamos com os dados do backend.
-       ------------------------------------------------------- */
-
-    const data =
-        await getSite();
-
-
-    /* -------------------------------------------------------
-       Configurações
-       ------------------------------------------------------- */
-
-    const settings =
-        data.settings ||
-        fallback.settings;
-
-
-    /* -------------------------------------------------------
-       Hero
-       ------------------------------------------------------- */
-
-    const heroTitle =
-        $("#heroTitle");
-
-    if (heroTitle) {
-
-        heroTitle.textContent =
-            settings.hero_title ||
-            fallback.settings.hero_title;
-    }
-
-
-    const heroText =
-        $("#heroText");
-
-    if (heroText) {
-
-        heroText.textContent =
-            settings.hero_text ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Sobre nós
-       ------------------------------------------------------- */
-
-    const aboutText =
-        $("#aboutText");
-
-    if (aboutText) {
-
-        aboutText.textContent =
-            settings.about_text ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Endereço
-       ------------------------------------------------------- */
-
-    const address =
-        $("#address");
-
-    if (address) {
-
-        address.textContent =
-            settings.address ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Telefone
-       ------------------------------------------------------- */
-
-    const phone =
-        $("#phone");
-
-    if (phone) {
-
-        phone.textContent =
-            settings.phone ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Horário
-       ------------------------------------------------------- */
-
-    const hours =
-        $("#hours");
-
-    if (hours) {
-
-        hours.textContent =
-            settings.hours ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Google Maps
-       ------------------------------------------------------- */
-
-    const maps =
-        $("#maps");
-
-    if (maps) {
-
-        maps.href =
-            settings.maps_url ||
-            "#";
-    }
-
-
-    /* -------------------------------------------------------
-       Número de avaliações
-       ------------------------------------------------------- */
-
-    const reviewCount =
-        $("#reviewCount");
-
-    if (reviewCount) {
-
-        reviewCount.textContent =
-            (settings.review_count || 6) +
-            " avaliações";
-    }
-
-
-    /* =======================================================
-       CATEGORIAS
-       ======================================================= */
-
-    const categories =
-        Array.isArray(data.categories) &&
-        data.categories.length
-
-            ? data.categories
-
-            : fallback.categories;
-
-
-    /* -------------------------------------------------------
-       Mostrar categorias
-       ------------------------------------------------------- */
-
-    renderFilters(
-        categories
-    );
-
-
-    /* =======================================================
-       PRODUTOS
-       ======================================================= */
-
-    const products =
-        Array.isArray(data.products) &&
-        data.products.length
-
-            ? data.products
-
-            : fallback.products;
-
-
-    /* -------------------------------------------------------
-       Mostrar produtos
-       ------------------------------------------------------- */
-
-    renderProducts(
-        products
-    );
-
-
-    /* -------------------------------------------------------
-       Reativar filtros depois de atualizar os produtos
-       ------------------------------------------------------- */
-
-    setupFilters();
-
-
-    /* =======================================================
-       GALERIA
-       ======================================================= */
-
-    const gallery =
-        Array.isArray(data.gallery)
-            ? data.gallery
-            : fallback.gallery;
-
-
-    renderGallery(
-        gallery
-    );
-
-
-    /* =======================================================
-       AVALIAÇÕES
-       ======================================================= */
-
-    const reviews =
-        Array.isArray(data.reviews)
-            ? data.reviews
-            : fallback.reviews;
-
-
-    renderReviews(
-        reviews
-    );
-}
-
-
-/* =========================================================
-   8. RENDERIZAR PRODUTOS
-   ========================================================= */
-
-/**
- * Cria os cartões dos produtos.
- */
-function renderProducts(products) {
-
-    const container =
-        $("#products");
-
-
-    /* -------------------------------------------------------
-       Verificar se o elemento existe
-       ------------------------------------------------------- */
-
-    if (!container) {
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Garantir que recebemos um array
-       ------------------------------------------------------- */
-
-    const list =
-        Array.isArray(products)
-            ? products
-            : [];
-
-
-    /* -------------------------------------------------------
-       Se não existirem produtos
-       ------------------------------------------------------- */
-
-    if (!list.length) {
-
-        container.innerHTML =
-            `
-            <div class="empty">
-                Nenhum produto disponível.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Criar HTML dos produtos
-       ------------------------------------------------------- */
-
-    container.innerHTML =
-        list
-            .map(
-                (product) => {
-
-                    /* ---------------------------------------
-                       Categoria do produto
-                       --------------------------------------- */
-
-                    const categoryId =
-                        product.category_id ?? "";
-
-
-                    /* ---------------------------------------
-                       Imagem do produto
-                       --------------------------------------- */
-
-                    const image =
-                        product.image
-                            ? `
-                                <img
-                                    src="${esc(
-                                        img(product.image)
-                                    )}"
-                                    alt="${esc(
-                                        product.name
-                                    )}"
-                                    loading="lazy"
-                                    onerror="
-                                        this.style.display='none'
-                                    "
-                                >
-                              `
-                            : `
-                                <div class="empty">
-                                    Sem imagem
-                                </div>
-                              `;
-
-
-                    /* ---------------------------------------
-                       Cartão completo
-                       --------------------------------------- */
-
-                    return `
-                        <article
-                            class="product"
-                            data-category="${esc(
-                                categoryId
-                            )}"
-                        >
-
-                            <!-- Imagem do produto -->
-                            <div class="product-img">
-                                ${image}
-                            </div>
-
-
-                            <!-- Informações do produto -->
-                            <div class="product-body">
-
-                                <!-- Nome -->
-                                <h3>
-                                    ${esc(product.name)}
-                                </h3>
-
-
-                                <!-- Descrição -->
-                                <p>
-                                    ${esc(
-                                        product.description || ""
-                                    )}
-                                </p>
-
-
-                                <!-- Preço -->
-                                <span class="price">
-                                    A partir de
-                                    ${money(product.price)}
-                                </span>
-
-                            </div>
-
-                        </article>
-                    `;
-                }
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   9. RENDERIZAR GALERIA
-   ========================================================= */
-
-/**
- * Mostra as imagens da galeria.
- */
-function renderGallery(galleryItems) {
-
-    const container =
-        $("#gallery");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const list =
-        Array.isArray(galleryItems)
-            ? galleryItems
-            : [];
-
-
-    /* -------------------------------------------------------
-       Sem imagens
-       ------------------------------------------------------- */
-
-    if (!list.length) {
-
-        container.innerHTML =
-            `
-            <div class="empty">
-                Galeria disponível em breve.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Criar galeria
-       ------------------------------------------------------- */
-
-    container.innerHTML =
-        list
-            .map(
-                (item) => `
-                    <figure>
-
-                        <img
-                            src="${esc(item.image)}"
-                            alt="${esc(
-                                item.caption || ""
-                            )}"
-                            loading="lazy"
-                        >
-
-                    </figure>
-                `
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   10. RENDERIZAR AVALIAÇÕES
-   ========================================================= */
-
-/**
- * Mostra as avaliações dos clientes.
- */
-function renderReviews(reviewItems) {
-
-    const container =
-        $("#reviews");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const list =
-        Array.isArray(reviewItems)
-            ? reviewItems
-            : [];
-
-
-    /* -------------------------------------------------------
-       Sem avaliações
-       ------------------------------------------------------- */
-
-    if (!list.length) {
-
-        container.innerHTML =
-            `
-            <div class="empty">
-                Ainda não há avaliações.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Criar avaliações
-       ------------------------------------------------------- */
-
-    container.innerHTML =
-        list
-            .map(
-                (review) => {
-
-                    /* ---------------------------------------
-                       Número de estrelas
-                       --------------------------------------- */
-
-                    const rating =
-                        Math.max(
-                            0,
-                            Math.min(
-                                5,
-                                Number(review.rating) || 5
-                            )
-                        );
-
-
-                    /* ---------------------------------------
-                       Estrelas preenchidas
-                       --------------------------------------- */
-
-                    const filledStars =
-                        "★".repeat(
-                            rating
-                        );
-
-
-                    /* ---------------------------------------
-                       Estrelas vazias
-                       --------------------------------------- */
-
-                    const emptyStars =
-                        "☆".repeat(
-                            5 - rating
-                        );
-
-
-                    /* ---------------------------------------
-                       HTML da avaliação
-                       --------------------------------------- */
-
-                    return `
-                        <article class="review">
-
-                            <!-- Estrelas -->
-                            <div class="stars">
-                                ${filledStars}
-                                ${emptyStars}
-                            </div>
-
-
-                            <!-- Nome -->
-                            <h3>
-                                ${esc(
-                                    review.name
-                                )}
-                            </h3>
-
-
-                            <!-- Comentário -->
-                            <p>
-                                “${esc(
-                                    review.comment
-                                )}”
-                            </p>
-
-                        </article>
-                    `;
-                }
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   11. MENU MOBILE
-   ========================================================= */
-
-/**
- * Configura o menu mobile.
- */
-function setupMobileMenu() {
-
-    const toggle =
-        $(".menu-toggle");
-
-    const nav =
-        $(".main-nav");
-
-
-    /* -------------------------------------------------------
-       Se os elementos não existirem, terminar
-       ------------------------------------------------------- */
-
-    if (!toggle || !nav) {
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Abrir / fechar menu
-       ------------------------------------------------------- */
-
-    toggle.onclick = () => {
-
-        /* Alternar classe "open" */
-        nav.classList.toggle("open");
-
-
-        /* Verificar estado */
-        const isOpen =
-            nav.classList.contains("open");
-
-
-        /* Atualizar acessibilidade */
-        toggle.setAttribute(
-            "aria-expanded",
-            isOpen
-        );
-
-
-        /* Alterar ícone */
-        toggle.textContent =
-            isOpen
-                ? "✕"
-                : "☰";
-    };
-
-
-    /* -------------------------------------------------------
-       Fechar menu ao clicar num link
-       ------------------------------------------------------- */
-
-    document
-        .querySelectorAll(".main-nav a")
-        .forEach((link) => {
-
-            link.addEventListener(
-                "click",
-                () => {
-
-                    nav.classList.remove(
-                        "open"
-                    );
-
-
-                    toggle.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-
-                    toggle.textContent =
-                        "☰";
-                }
-            );
-        });
-}
-
-
-/* =========================================================
-   12. INICIALIZAÇÃO
-   ========================================================= */
-
-/**
- * Executado quando o HTML termina de carregar.
- */
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        /* ---------------------------------------------------
-           1. Mostrar o menu local imediatamente
-           --------------------------------------------------- */
-
-        showFallbackMenuImmediately();
-
-
-        /* ---------------------------------------------------
-           2. Atualizar o ano do copyright
-           --------------------------------------------------- */
-
-        const year =
-            $("#year");
-
-        if (year) {
-
-            year.textContent =
-                new Date().getFullYear();
-        }
-
-
-        /* ---------------------------------------------------
-           3. Configurar menu mobile
-           --------------------------------------------------- */
-
-        setupMobileMenu();
-
-
-        /* ---------------------------------------------------
-           4. Buscar dados atualizados do backend
-           --------------------------------------------------- */
-
-        loadSite();
-    }
-);
-```
-```javascript
-/* =========================================================
-   BAKONGUINHO - FRONTEND
-   Arquivo: assets/js/app.js
-
-   Responsabilidades deste arquivo:
-   - Carregar dados do backend
-   - Utilizar dados de reserva (fallback)
-   - Mostrar produtos
-   - Filtrar produtos por categoria
-   - Mostrar galeria
-   - Mostrar avaliações
-   - Atualizar informações do site
-   - Controlar o menu mobile
-
-   IMPORTANTE:
-   O visual do site não é alterado por este arquivo.
-   ========================================================= */
-
-
-/* =========================================================
-   1. FUNÇÕES AUXILIARES
-   ========================================================= */
-
-/**
- * Atalho para selecionar um elemento do HTML.
- */
-const $ = (selector) => document.querySelector(selector);
-
-
-/**
- * Formata valores monetários em Kwanza.
- *
- * Exemplo:
- * 2500 -> 2 500 Kz
- */
-const money = (value) =>
-    new Intl.NumberFormat("pt-AO", {
-        style: "currency",
-        currency: "AOA",
-        maximumFractionDigits: 0
-    })
-        .format(Number(value) || 0)
-        .replace("AOA", "Kz");
-
-
-/**
- * Protege textos que serão inseridos diretamente no HTML.
- *
- * Evita problemas com caracteres especiais.
- */
-const esc = (value) =>
-    String(value ?? "").replace(
-        /[&<>"']/g,
-        (character) => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-        }[character])
-    );
-
-
-/**
- * Define uma imagem padrão caso o produto não tenha imagem.
- */
-const img = (path) =>
-    path || "assets/images/logo.jpeg";
-
-
-/* =========================================================
-   2. DADOS DE RESERVA - FALLBACK
-   ---------------------------------------------------------
-   Estes dados são utilizados quando:
-   - O Render está a acordar;
-   - A API está temporariamente indisponível;
-   - Existe algum problema de ligação.
-
-   Assim o site não fica vazio.
-   ========================================================= */
-
-const fallback = {
-
-    /* -------------------------------------------------------
-       Configurações gerais do site
-       ------------------------------------------------------- */
-    settings: {
-        hero_title:
-            "O sabor que dá vontade de voltar",
-
-        hero_text:
-            "Hambúrgueres preparados com sabor, qualidade e aquele toque especial da BAKONGUINHO.",
-
-        about_text:
-            "A BAKONGUINHO é uma hamburgueria pensada para quem aprecia boa comida, hambúrgueres saborosos e momentos especiais.",
-
-        address:
-            "Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola",
-
-        phone:
-            "923 850 875",
-
-        hours:
-            "Aberto até às 22:00",
-
-        maps_url:
-            "https://maps.google.com",
-
-        review_count:
-            6
-    },
-
-
-    /* -------------------------------------------------------
-       Categorias de produtos
-       ------------------------------------------------------- */
-    categories: [
-
-        {
-            id: 1,
-            name: "Hambúrgueres"
-        },
-
-        {
-            id: 2,
-            name: "Churrasco"
-        },
-
-        {
-            id: 3,
-            name: "Acompanhamentos"
-        },
-
-        {
-            id: 4,
-            name: "Bebidas"
-        },
-
-        {
-            id: 5,
-            name: "Especiais"
-        }
-
-    ],
-
-
-    /* -------------------------------------------------------
-       Produtos de reserva
-       ------------------------------------------------------- */
-    products: [
-
-        {
-            category_id: 1,
-
-            name:
-                "Double Cheeseburger",
-
-            description:
-                "Hambúrguer duplo artesanal.",
-
-            price:
-                2500,
-
-            image:
-                "assets/images/produto_20260911_153446_04612a9283.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 1,
-
-            name:
-                "Crispy Chicken",
-
-            description:
-                "Frango crocante num pão brioche.",
-
-            price:
-                2200,
-
-            image:
-                "assets/images/produto_20260911_153558_482ad29e45.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 1,
-
-            name:
-                "Bacon Gourmet",
-
-            description:
-                "Hambúrguer gourmet com queijo e bacon.",
-
-            price:
-                2800,
-
-            image:
-                "assets/images/produto_20260911_155619_7b9b217736.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 2,
-
-            name:
-                "No nosso churrasco",
-
-            description:
-                "Especialidade preparada na brasa.",
-
-            price:
-                3500,
-
-            image:
-                "assets/images/produto_20260911_161351_5d26f0bdb1.jpg",
-
-            featured:
-                1,
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 5,
-
-            name:
-                "Smash Sliders",
-
-            description:
-                "Mini hambúrgueres smash.",
-
-            price:
-                2000,
-
-            image:
-                "assets/images/products/bakonguinho.jfif",
-
-            active:
-                1
-        },
-
-
-        {
-            category_id: 5,
-
-            name:
-                "Cheeseburger Clássica",
-
-            description:
-                "Receita clássica americana.",
-
-            price:
-                2000,
-
-            image:
-                "assets/images/products/bakonguinho2.jfif",
-
-            active:
-                1
-        }
-
-    ],
-
-
-    /* -------------------------------------------------------
-       Galeria de reserva
-       ------------------------------------------------------- */
-    gallery: [],
-
-
-    /* -------------------------------------------------------
-       Avaliações de reserva
-       ------------------------------------------------------- */
-    reviews: [
-
-        {
-            name:
-                "Cliente BAKONGUINHO",
-
-            comment:
-                "A sua opinião é importante para nós.",
-
-            rating:
-                5,
-
-            active:
-                1
-        }
-
-    ]
-
-};
-
-
-/* =========================================================
-   3. OBTER DADOS DA API
-   ========================================================= */
-
-/**
- * Busca os dados atuais do backend.
- *
- * Existe um limite de 5 segundos para não deixar o site
- * preso indefinidamente caso o Render demore a responder.
- */
-async function getSite() {
-
-    try {
-
-        /* ---------------------------------------------------
-           Controlador para limitar o tempo da requisição
-           --------------------------------------------------- */
-
-        const controller =
-            new AbortController();
-
-
-        /* ---------------------------------------------------
-           Depois de 5 segundos, cancelar a requisição
-           --------------------------------------------------- */
-
-        const timeout =
-            setTimeout(() => {
-                controller.abort();
-            }, 5000);
-
-
-        /* ---------------------------------------------------
-           Fazer pedido à API
-           --------------------------------------------------- */
-
-        const response =
-            await fetch("/api/site", {
-                cache: "no-store",
-                signal: controller.signal
-            });
-
-
-        /* ---------------------------------------------------
-           Limpar temporizador
-           --------------------------------------------------- */
-
-        clearTimeout(timeout);
-
-
-        /* ---------------------------------------------------
-           Verificar resposta
-           --------------------------------------------------- */
-
-        if (!response.ok) {
-            throw new Error(
-                "Não foi possível carregar a API."
-            );
-        }
-
-
-        /* ---------------------------------------------------
-           Devolver dados do backend
-           --------------------------------------------------- */
-
-        return await response.json();
-
-    } catch (error) {
-
-        /* ---------------------------------------------------
-           Se houver erro, usar os dados locais.
-           O site continua funcionando.
-           --------------------------------------------------- */
-
-        return fallback;
-    }
-}
-
-
-/* =========================================================
-   4. MOSTRAR CATEGORIAS
-   ========================================================= */
-
-/**
- * Cria os botões das categorias.
- *
- * O botão "Todos" aparece sempre.
- */
-function renderFilters(categories) {
-
-    const filters =
-        $("#filters");
-
-
-    /* -------------------------------------------------------
-       Verificar se o elemento existe
-       ------------------------------------------------------- */
-
-    if (!filters) {
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Garantir que temos um array
-       ------------------------------------------------------- */
-
-    const cats =
-        Array.isArray(categories)
-            ? categories
-            : [];
-
-
-    /* -------------------------------------------------------
-       Criar o botão "Todos"
-       ------------------------------------------------------- */
-
-    let html =
-        `
-        <button
-            class="filter active"
-            data-cat="all"
-        >
-            Todos
-        </button>
-        `;
-
-
-    /* -------------------------------------------------------
-       Criar os restantes botões
-       ------------------------------------------------------- */
-
-    html += cats
-        .map(
-            (category) => `
-                <button
-                    class="filter"
-                    data-cat="${esc(category.id)}"
-                >
-                    ${esc(category.name)}
-                </button>
-            `
-        )
-        .join("");
-
-
-    /* -------------------------------------------------------
-       Inserir no HTML
-       ------------------------------------------------------- */
-
-    filters.innerHTML =
-        html;
-}
-
-
-/* =========================================================
-   5. APLICAR FILTRO DOS PRODUTOS
-   ========================================================= */
-
-/**
- * Aplica o filtro selecionado aos produtos.
- *
- * CORREÇÃO:
- * Antes o código comparava:
- *
- *     p.dataset.cat
- *
- * mas o produto possui:
- *
- *     data-category
- *
- * Agora a comparação é feita corretamente:
- *
- *     p.dataset.category === b.dataset.cat
- *
- * Também utilizamos String() para evitar problemas quando
- * uma categoria vem como número e outra como texto.
- */
-function setupFilters() {
-
-    document
-        .querySelectorAll(".filter")
-        .forEach((button) => {
-
-            button.onclick = () => {
-
-                /* -------------------------------------------
-                   Remover "active" de todos os botões
-                   ------------------------------------------- */
-
-                document
-                    .querySelectorAll(".filter")
-                    .forEach((item) => {
-                        item.classList.remove("active");
-                    });
-
-
-                /* -------------------------------------------
-                   Ativar o botão selecionado
-                   ------------------------------------------- */
-
-                button.classList.add("active");
-
-
-                /* -------------------------------------------
-                   Categoria selecionada
-                   ------------------------------------------- */
-
-                const selectedCategory =
-                    String(button.dataset.cat);
-
-
-                /* -------------------------------------------
-                   Percorrer todos os produtos
-                   ------------------------------------------- */
-
-                document
-                    .querySelectorAll(".product")
-                    .forEach((product) => {
-
-                        const productCategory =
-                            String(
-                                product.dataset.category || ""
-                            );
-
-
-                        /* -------------------------------------
-                           Se "Todos" estiver selecionado,
-                           mostrar todos os produtos.
-
-                           Caso contrário, mostrar somente
-                           os produtos da categoria escolhida.
-                           ------------------------------------- */
-
-                        const shouldShow =
-                            selectedCategory === "all" ||
-                            productCategory === selectedCategory;
-
-
-                        /* -------------------------------------
-                           Mostrar ou esconder
-                           ------------------------------------- */
-
-                        product.style.display =
-                            shouldShow
-                                ? ""
-                                : "none";
-                    });
-            };
-
-        });
-}
-
-
-/* =========================================================
-   6. CARREGAR PRODUTOS INICIALMENTE
-   ========================================================= */
-
-/**
- * Mostra os produtos locais imediatamente.
- *
- * Isso evita que o cliente fique muito tempo a ver:
- *
- * "A carregar menu..."
- */
-function showFallbackMenuImmediately() {
-
-    /* -------------------------------------------------------
-       Mostrar categorias
-       ------------------------------------------------------- */
-
-    renderFilters(
-        fallback.categories
-    );
-
-
-    /* -------------------------------------------------------
-       Mostrar produtos locais
-       ------------------------------------------------------- */
-
-    renderProducts(
-        fallback.products
-    );
-
-
-    /* -------------------------------------------------------
-       Configurar os filtros
-       ------------------------------------------------------- */
-
-    setupFilters();
-}
-
-
-/* =========================================================
-   7. CARREGAR O SITE COMPLETO
-   ========================================================= */
-
-/**
- * Atualiza todos os dados utilizando o backend.
- */
-async function loadSite() {
-
-    /* -------------------------------------------------------
-       IMPORTANTE:
-       O fallback já foi mostrado antes desta função.
-
-       Portanto o menu aparece imediatamente.
-
-       Agora apenas atualizamos com os dados do backend.
-       ------------------------------------------------------- */
-
-    const data =
-        await getSite();
-
-
-    /* -------------------------------------------------------
-       Configurações
-       ------------------------------------------------------- */
-
-    const settings =
-        data.settings ||
-        fallback.settings;
-
-
-    /* -------------------------------------------------------
-       Hero
-       ------------------------------------------------------- */
-
-    const heroTitle =
-        $("#heroTitle");
-
-    if (heroTitle) {
-
-        heroTitle.textContent =
-            settings.hero_title ||
-            fallback.settings.hero_title;
-    }
-
-
-    const heroText =
-        $("#heroText");
-
-    if (heroText) {
-
-        heroText.textContent =
-            settings.hero_text ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Sobre nós
-       ------------------------------------------------------- */
-
-    const aboutText =
-        $("#aboutText");
-
-    if (aboutText) {
-
-        aboutText.textContent =
-            settings.about_text ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Endereço
-       ------------------------------------------------------- */
-
-    const address =
-        $("#address");
-
-    if (address) {
-
-        address.textContent =
-            settings.address ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Telefone
-       ------------------------------------------------------- */
-
-    const phone =
-        $("#phone");
-
-    if (phone) {
-
-        phone.textContent =
-            settings.phone ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Horário
-       ------------------------------------------------------- */
-
-    const hours =
-        $("#hours");
-
-    if (hours) {
-
-        hours.textContent =
-            settings.hours ||
-            "";
-    }
-
-
-    /* -------------------------------------------------------
-       Google Maps
-       ------------------------------------------------------- */
-
-    const maps =
-        $("#maps");
-
-    if (maps) {
-
-        maps.href =
-            settings.maps_url ||
-            "#";
-    }
-
-
-    /* -------------------------------------------------------
-       Número de avaliações
-       ------------------------------------------------------- */
-
-    const reviewCount =
-        $("#reviewCount");
-
-    if (reviewCount) {
-
-        reviewCount.textContent =
-            (settings.review_count || 6) +
-            " avaliações";
-    }
-
-
-    /* =======================================================
-       CATEGORIAS
-       ======================================================= */
-
-    const categories =
-        Array.isArray(data.categories) &&
-        data.categories.length
-
-            ? data.categories
-
-            : fallback.categories;
-
-
-    /* -------------------------------------------------------
-       Mostrar categorias
-       ------------------------------------------------------- */
-
-    renderFilters(
-        categories
-    );
-
-
-    /* =======================================================
-       PRODUTOS
-       ======================================================= */
-
-    const products =
-        Array.isArray(data.products) &&
-        data.products.length
-
-            ? data.products
-
-            : fallback.products;
-
-
-    /* -------------------------------------------------------
-       Mostrar produtos
-       ------------------------------------------------------- */
-
-    renderProducts(
-        products
-    );
-
-
-    /* -------------------------------------------------------
-       Reativar filtros depois de atualizar os produtos
-       ------------------------------------------------------- */
-
-    setupFilters();
-
-
-    /* =======================================================
-       GALERIA
-       ======================================================= */
-
-    const gallery =
-        Array.isArray(data.gallery)
-            ? data.gallery
-            : fallback.gallery;
-
-
-    renderGallery(
-        gallery
-    );
-
-
-    /* =======================================================
-       AVALIAÇÕES
-       ======================================================= */
-
-    const reviews =
-        Array.isArray(data.reviews)
-            ? data.reviews
-            : fallback.reviews;
-
-
-    renderReviews(
-        reviews
-    );
-}
-
-
-/* =========================================================
-   8. RENDERIZAR PRODUTOS
-   ========================================================= */
-
-/**
- * Cria os cartões dos produtos.
- */
-function renderProducts(products) {
-
-    const container =
-        $("#products");
-
-
-    /* -------------------------------------------------------
-       Verificar se o elemento existe
-       ------------------------------------------------------- */
-
-    if (!container) {
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Garantir que recebemos um array
-       ------------------------------------------------------- */
-
-    const list =
-        Array.isArray(products)
-            ? products
-            : [];
-
-
-    /* -------------------------------------------------------
-       Se não existirem produtos
-       ------------------------------------------------------- */
-
-    if (!list.length) {
-
-        container.innerHTML =
-            `
-            <div class="empty">
-                Nenhum produto disponível.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Criar HTML dos produtos
-       ------------------------------------------------------- */
-
-    container.innerHTML =
-        list
-            .map(
-                (product) => {
-
-                    /* ---------------------------------------
-                       Categoria do produto
-                       --------------------------------------- */
-
-                    const categoryId =
-                        product.category_id ?? "";
-
-
-                    /* ---------------------------------------
-                       Imagem do produto
-                       --------------------------------------- */
-
-                    const image =
-                        product.image
-                            ? `
-                                <img
-                                    src="${esc(
-                                        img(product.image)
-                                    )}"
-                                    alt="${esc(
-                                        product.name
-                                    )}"
-                                    loading="lazy"
-                                    onerror="
-                                        this.style.display='none'
-                                    "
-                                >
-                              `
-                            : `
-                                <div class="empty">
-                                    Sem imagem
-                                </div>
-                              `;
-
-
-                    /* ---------------------------------------
-                       Cartão completo
-                       --------------------------------------- */
-
-                    return `
-                        <article
-                            class="product"
-                            data-category="${esc(
-                                categoryId
-                            )}"
-                        >
-
-                            <!-- Imagem do produto -->
-                            <div class="product-img">
-                                ${image}
-                            </div>
-
-
-                            <!-- Informações do produto -->
-                            <div class="product-body">
-
-                                <!-- Nome -->
-                                <h3>
-                                    ${esc(product.name)}
-                                </h3>
-
-
-                                <!-- Descrição -->
-                                <p>
-                                    ${esc(
-                                        product.description || ""
-                                    )}
-                                </p>
-
-
-                                <!-- Preço -->
-                                <span class="price">
-                                    A partir de
-                                    ${money(product.price)}
-                                </span>
-
-                            </div>
-
-                        </article>
-                    `;
-                }
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   9. RENDERIZAR GALERIA
-   ========================================================= */
-
-/**
- * Mostra as imagens da galeria.
- */
-function renderGallery(galleryItems) {
-
-    const container =
-        $("#gallery");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const list =
-        Array.isArray(galleryItems)
-            ? galleryItems
-            : [];
-
-
-    /* -------------------------------------------------------
-       Sem imagens
-       ------------------------------------------------------- */
-
-    if (!list.length) {
-
-        container.innerHTML =
-            `
-            <div class="empty">
-                Galeria disponível em breve.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Criar galeria
-       ------------------------------------------------------- */
-
-    container.innerHTML =
-        list
-            .map(
-                (item) => `
-                    <figure>
-
-                        <img
-                            src="${esc(item.image)}"
-                            alt="${esc(
-                                item.caption || ""
-                            )}"
-                            loading="lazy"
-                        >
-
-                    </figure>
-                `
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   10. RENDERIZAR AVALIAÇÕES
-   ========================================================= */
-
-/**
- * Mostra as avaliações dos clientes.
- */
-function renderReviews(reviewItems) {
-
-    const container =
-        $("#reviews");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const list =
-        Array.isArray(reviewItems)
-            ? reviewItems
-            : [];
-
-
-    /* -------------------------------------------------------
-       Sem avaliações
-       ------------------------------------------------------- */
-
-    if (!list.length) {
-
-        container.innerHTML =
-            `
-            <div class="empty">
-                Ainda não há avaliações.
-            </div>
-            `;
-
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Criar avaliações
-       ------------------------------------------------------- */
-
-    container.innerHTML =
-        list
-            .map(
-                (review) => {
-
-                    /* ---------------------------------------
-                       Número de estrelas
-                       --------------------------------------- */
-
-                    const rating =
-                        Math.max(
-                            0,
-                            Math.min(
-                                5,
-                                Number(review.rating) || 5
-                            )
-                        );
-
-
-                    /* ---------------------------------------
-                       Estrelas preenchidas
-                       --------------------------------------- */
-
-                    const filledStars =
-                        "★".repeat(
-                            rating
-                        );
-
-
-                    /* ---------------------------------------
-                       Estrelas vazias
-                       --------------------------------------- */
-
-                    const emptyStars =
-                        "☆".repeat(
-                            5 - rating
-                        );
-
-
-                    /* ---------------------------------------
-                       HTML da avaliação
-                       --------------------------------------- */
-
-                    return `
-                        <article class="review">
-
-                            <!-- Estrelas -->
-                            <div class="stars">
-                                ${filledStars}
-                                ${emptyStars}
-                            </div>
-
-
-                            <!-- Nome -->
-                            <h3>
-                                ${esc(
-                                    review.name
-                                )}
-                            </h3>
-
-
-                            <!-- Comentário -->
-                            <p>
-                                “${esc(
-                                    review.comment
-                                )}”
-                            </p>
-
-                        </article>
-                    `;
-                }
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   11. MENU MOBILE
-   ========================================================= */
-
-/**
- * Configura o menu mobile.
- */
-function setupMobileMenu() {
-
-    const toggle =
-        $(".menu-toggle");
-
-    const nav =
-        $(".main-nav");
-
-
-    /* -------------------------------------------------------
-       Se os elementos não existirem, terminar
-       ------------------------------------------------------- */
-
-    if (!toggle || !nav) {
-        return;
-    }
-
-
-    /* -------------------------------------------------------
-       Abrir / fechar menu
-       ------------------------------------------------------- */
-
-    toggle.onclick = () => {
-
-        /* Alternar classe "open" */
-        nav.classList.toggle("open");
-
-
-        /* Verificar estado */
-        const isOpen =
-            nav.classList.contains("open");
-
-
-        /* Atualizar acessibilidade */
-        toggle.setAttribute(
-            "aria-expanded",
-            isOpen
-        );
-
-
-        /* Alterar ícone */
-        toggle.textContent =
-            isOpen
-                ? "✕"
-                : "☰";
-    };
-
-
-    /* -------------------------------------------------------
-       Fechar menu ao clicar num link
-       ------------------------------------------------------- */
-
-    document
-        .querySelectorAll(".main-nav a")
-        .forEach((link) => {
-
-            link.addEventListener(
-                "click",
-                () => {
-
-                    nav.classList.remove(
-                        "open"
-                    );
-
-
-                    toggle.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-
-                    toggle.textContent =
-                        "☰";
-                }
-            );
-        });
-}
-
-
-/* =========================================================
-   12. INICIALIZAÇÃO
-   ========================================================= */
-
-/**
- * Executado quando o HTML termina de carregar.
- */
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        /* ---------------------------------------------------
-           1. Mostrar o menu local imediatamente
-           --------------------------------------------------- */
-
-        showFallbackMenuImmediately();
-
-
-        /* ---------------------------------------------------
-           2. Atualizar o ano do copyright
-           --------------------------------------------------- */
-
-        const year =
-            $("#year");
-
-        if (year) {
-
-            year.textContent =
-                new Date().getFullYear();
-        }
-
-
-        /* ---------------------------------------------------
-           3. Configurar menu mobile
-           --------------------------------------------------- */
-
-        setupMobileMenu();
-
-
-        /* ---------------------------------------------------
-           4. Buscar dados atualizados do backend
-           --------------------------------------------------- */
-
-        loadSite();
-    }
-);
-```
