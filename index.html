@@ -340,32 +340,171 @@
         <!-- =====================================================
              AVALIAÇÕES DOS CLIENTES
              ===================================================== -->
-        <section class="section">
+       <!-- =====================================================
+     SECÇÃO DE AVALIAÇÕES DOS CLIENTES
+     ===================================================== -->
+<section class="section">
 
-            <div class="container">
+    <div class="container">
 
-                <!-- Cabeçalho -->
-                <div class="section-head">
+        <!-- Cabeçalho da secção -->
+        <div class="section-head">
+            <small>CLIENTES</small>
 
-                    <small>
-                        CLIENTES
-                    </small>
+            <h2>
+                O que dizem de nós
+            </h2>
 
-                    <h2>
-                        O que dizem de nós
-                    </h2>
+            <p>
+                A sua opinião é importante para nós.
+            </p>
+        </div>
 
-                </div>
+
+        <!-- =================================================
+             AVALIAÇÕES JÁ APROVADAS
+             ================================================= -->
+        <div
+            class="reviews"
+            id="reviews"
+        ></div>
 
 
-                <!-- Avaliações carregadas pelo JavaScript -->
-                <div
-                    class="reviews"
-                    id="reviews"
-                ></div>
+        <!-- =================================================
+             FORMULÁRIO PARA NOVA AVALIAÇÃO
+             ================================================= -->
+        <div
+            class="review-form-wrap"
+            style="
+                max-width:720px;
+                margin:40px auto 0;
+                padding:30px;
+                border-radius:18px;
+                background:#fff;
+                box-shadow:0 15px 40px rgba(0,0,0,.08);
+            "
+        >
+
+            <div
+                style="
+                    text-align:center;
+                    margin-bottom:25px;
+                "
+            >
+
+                <small>
+                    DEIXE A SUA OPINIÃO
+                </small>
+
+                <h3
+                    style="
+                        margin:8px 0;
+                    "
+                >
+                    Conte-nos como foi a sua experiência
+                </h3>
+
+                <p
+                    style="
+                        margin:0;
+                        opacity:.75;
+                    "
+                >
+                    A sua avaliação será analisada antes de aparecer no site.
+                </p>
 
             </div>
-        </section>
+
+
+            <!-- Formulário -->
+            <form
+                id="reviewForm"
+                class="form-card"
+            >
+
+                <!-- Nome -->
+                <label>
+                    Nome
+
+                    <input
+                        type="text"
+                        name="name"
+                        maxlength="100"
+                        placeholder="Digite o seu nome"
+                        required
+                    >
+                </label>
+
+
+                <!-- Avaliação -->
+                <label>
+                    Avaliação
+
+                    <select
+                        name="rating"
+                        required
+                    >
+                        <option value="5">
+                            5 estrelas
+                        </option>
+
+                        <option value="4">
+                            4 estrelas
+                        </option>
+
+                        <option value="3">
+                            3 estrelas
+                        </option>
+
+                        <option value="2">
+                            2 estrelas
+                        </option>
+
+                        <option value="1">
+                            1 estrela
+                        </option>
+                    </select>
+                </label>
+
+
+                <!-- Comentário -->
+                <label>
+                    Comentário
+
+                    <textarea
+                        name="comment"
+                        rows="5"
+                        maxlength="1000"
+                        placeholder="Escreva aqui a sua opinião..."
+                        required
+                    ></textarea>
+                </label>
+
+
+                <!-- Mensagem de retorno -->
+                <div
+                    id="reviewMessage"
+                    style="
+                        margin-bottom:15px;
+                    "
+                ></div>
+
+
+                <!-- Botão -->
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Enviar avaliação
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
 
 
         <!-- =====================================================
