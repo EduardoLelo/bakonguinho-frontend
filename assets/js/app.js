@@ -61,7 +61,7 @@ const fallback = {
             "Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola",
         phone: "923 850 875",
         hours: "Aberto até às 22:00",
-        maps_url: "https://maps.google.com",
+        maps_url: "https://www.google.com/maps/place/Hamburguer+BAKONGINHO/@-8.8938364,13.5157143,285m/data=!3m1!1e3!4m5!3m4!1s0x1a51ff943b54e54b:0x81f5bb624b697ee3!8m2!3d-8.8939491!4d13.5157987?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D",
         review_count: 6
     },
 
