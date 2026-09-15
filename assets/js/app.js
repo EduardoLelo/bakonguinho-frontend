@@ -1,2049 +1,1208 @@
-const express = require('express');
-const session = require('express-session');
-const bcrypt = require('bcryptjs');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const Database = require('better-sqlite3');
+/* =========================================================
+   BAKONGUINHO - FRONTEND
+   Arquivo: assets/js/app.js
 
-const app = express();
+   Funções:
+   - Carregar dados do backend
+   - Fallback local
+   - Produtos
+   - Filtros
+   - Galeria
+   - Avaliações
+   - Formulário público de avaliações
+   - Menu mobile
 
-const PORT =
-    Number(process.env.PORT || 3000);
-
-const ROOT =
-    __dirname;
-
-const PUBLIC =
-    path.join(ROOT, 'public');
-
-const DATA_DIR =
-    process.env.DATA_DIR ||
-    path.join(ROOT, 'data');
-
-const DB_PATH =
-    process.env.DB_PATH ||
-    path.join(DATA_DIR, 'bakonguinho.db');
-
-const UPLOADS =
-    process.env.UPLOADS_DIR ||
-    path.join(DATA_DIR, 'uploads');
-
-const NODE_ENV =
-    process.env.NODE_ENV ||
-    'development';
-
-const SESSION_SECRET =
-    process.env.SESSION_SECRET;
-
-const ADMIN_EMAIL =
-    process.env.ADMIN_EMAIL ||
-    'admin@bakonguinho.ao';
-
-const ADMIN_PASSWORD =
-    process.env.ADMIN_PASSWORD;
+   ========================================================= */
 
 
 /* =========================================================
-   VERIFICAÇÃO DE PRODUÇÃO
+   1. FUNÇÕES AUXILIARES
    ========================================================= */
 
-if (
-    NODE_ENV === 'production' &&
-    (!SESSION_SECRET || !ADMIN_PASSWORD)
-) {
-    console.error(
-        'ERRO: defina SESSION_SECRET e ADMIN_PASSWORD nas variáveis de ambiente.'
+// Atalho para selecionar elemento
+const $ = (selector) =>
+    document.querySelector(selector);
+
+
+// Formatar valores em Kwanza
+const money = (value) =>
+    new Intl.NumberFormat("pt-AO", {
+        style: "currency",
+        currency: "AOA",
+        maximumFractionDigits: 0
+    })
+        .format(Number(value) || 0)
+        .replace("AOA", "Kz");
+
+
+// Escapar caracteres especiais
+const esc = (value) =>
+    String(value ?? "").replace(
+        /[&<>"']/g,
+        (character) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        }[character])
     );
 
-    process.exit(1);
-}
+
+// Imagem padrão
+const img = (path) =>
+    path || "assets/images/logo.jpeg";
 
 
 /* =========================================================
-   PASTAS E BASE DE DADOS
+   2. DADOS DE RESERVA
+   ---------------------------------------------------------
+   Utilizados quando a API do Render não responder.
    ========================================================= */
 
-fs.mkdirSync(
-    path.dirname(DB_PATH),
-    {
-        recursive: true
-    }
-);
-
-fs.mkdirSync(
-    UPLOADS,
-    {
-        recursive: true
-    }
-);
-
-
-const db =
-    new Database(DB_PATH);
-
-
-// Ativar WAL
-db.pragma('journal_mode = WAL');
-
-
-// Ativar chaves estrangeiras
-db.pragma('foreign_keys = ON');
-
-
-/* =========================================================
-   TABELAS
-   ========================================================= */
-
-db.exec(`
-    CREATE TABLE IF NOT EXISTS admins(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS categories(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS products(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        category_id INTEGER,
-        name TEXT NOT NULL,
-        description TEXT,
-        price REAL NOT NULL DEFAULT 0,
-        image TEXT,
-        featured INTEGER DEFAULT 0,
-        active INTEGER DEFAULT 1,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(category_id)
-            REFERENCES categories(id)
-            ON DELETE SET NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS gallery(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        caption TEXT NOT NULL,
-        image TEXT NOT NULL,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS reviews(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        comment TEXT NOT NULL,
-        rating INTEGER NOT NULL DEFAULT 5,
-        active INTEGER DEFAULT 1,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS settings(
-        id INTEGER PRIMARY KEY,
-        hero_title TEXT,
-        hero_text TEXT,
-        about_text TEXT,
-        address TEXT,
-        phone TEXT,
-        hours TEXT,
-        maps_url TEXT,
-        review_count INTEGER DEFAULT 0
-    );
-`);
-
-
-/* =========================================================
-   FUNÇÃO SEED
-   ========================================================= */
-
-function seed() {
+const fallback = {
 
     /* -------------------------------------------------------
-       Administrador
+       Configurações
        ------------------------------------------------------- */
 
-    const admin =
-        db
-            .prepare(
-                'SELECT id FROM admins LIMIT 1'
-            )
-            .get();
+    settings: {
 
+        hero_title:
+            "O sabor que dá vontade de voltar",
 
-    if (!admin) {
+        hero_text:
+            "Hambúrgueres preparados com sabor, qualidade e aquele toque especial da BAKONGUINHO.",
 
-        const password =
-            ADMIN_PASSWORD || '123456';
+        about_text:
+            "A BAKONGUINHO é uma hamburgueria pensada para quem aprecia boa comida, hambúrgueres saborosos e momentos especiais.",
 
+        address:
+            "Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola",
 
-        const hash =
-            bcrypt.hashSync(
-                password,
-                12
-            );
+        phone:
+            "923 850 875",
 
+        hours:
+            "Aberto até às 22:00",
 
-        db
-            .prepare(
-                'INSERT INTO admins(name,email,password) VALUES(?,?,?)'
-            )
-            .run(
-                'Administrador',
-                ADMIN_EMAIL,
-                hash
-            );
+        maps_url:
+            "https://www.google.com/maps/place/Hamburguer+BAKONGUINHO/@-8.8938364,13.5157143,285m/data=!3m1!1e3!4m5!3m4!1s0x1a51ff943b54e54b:0x81f5bb624b697ee3!8m2!3d-8.8939491!4d13.5157987?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D",
 
-
-        if (
-            NODE_ENV !== 'production'
-        ) {
-
-            console.log(
-                `Admin inicial: ${ADMIN_EMAIL} / ${password}`
-            );
-        }
-    }
+        review_count:
+            0
+    },
 
 
     /* -------------------------------------------------------
        Categorias
        ------------------------------------------------------- */
 
-    const categories = [
-        'Hambúrgueres',
-        'Churrasco',
-        'Acompanhamentos',
-        'Bebidas',
-        'Especiais'
-    ];
+    categories: [
+
+        {
+            id: 1,
+            name: "Hambúrgueres"
+        },
+
+        {
+            id: 2,
+            name: "Churrasco"
+        },
+
+        {
+            id: 3,
+            name: "Acompanhamentos"
+        },
+
+        {
+            id: 4,
+            name: "Bebidas"
+        },
+
+        {
+            id: 5,
+            name: "Especiais"
+        }
+
+    ],
 
 
-    const insertCategory =
-        db.prepare(
-            'INSERT OR IGNORE INTO categories(name) VALUES(?)'
-        );
+    /* -------------------------------------------------------
+       Produtos
+       ------------------------------------------------------- */
+
+    products: [
+
+        {
+            category_id: 1,
+            name: "Double Cheeseburger",
+            description:
+                "Hambúrguer duplo artesanal.",
+            price: 2500,
+            image:
+                "assets/images/produto_20260911_153446_04612a9283.jpg",
+            featured: 1,
+            active: 1
+        },
+
+        {
+            category_id: 1,
+            name: "Crispy Chicken",
+            description:
+                "Frango crocante num pão brioche.",
+            price: 2200,
+            image:
+                "assets/images/produto_20260911_153558_482ad29e45.jpg",
+            featured: 1,
+            active: 1
+        },
+
+        {
+            category_id: 1,
+            name: "Bacon Gourmet",
+            description:
+                "Hambúrguer gourmet com queijo e bacon.",
+            price: 2800,
+            image:
+                "assets/images/produto_20260911_155619_7b9b217736.jpg",
+            featured: 1,
+            active: 1
+        },
+
+        {
+            category_id: 2,
+            name: "No nosso churrasco",
+            description:
+                "Especialidade preparada na brasa.",
+            price: 3500,
+            image:
+                "assets/images/produto_20260911_161351_5d26f0bdb1.jpg",
+            featured: 1,
+            active: 1
+        },
+
+        {
+            category_id: 5,
+            name: "Smash Sliders",
+            description:
+                "Mini hambúrgueres smash.",
+            price: 2000,
+            image:
+                "assets/images/products/bakonguinho.jfif",
+            active: 1
+        },
+
+        {
+            category_id: 5,
+            name: "Cheeseburger Clássica",
+            description:
+                "Receita clássica americana.",
+            price: 2000,
+            image:
+                "assets/images/products/bakonguinho2.jfif",
+            active: 1
+        }
+
+    ],
 
 
-    categories.forEach(
-        (category) => {
-            insertCategory.run(
-                category
+    /* -------------------------------------------------------
+       Galeria
+       ------------------------------------------------------- */
+
+    gallery: [],
+
+
+    /* -------------------------------------------------------
+       Avaliações
+
+       IMPORTANTE:
+       Não colocamos avaliação fictícia.
+       ------------------------------------------------------- */
+
+    reviews: []
+
+};
+
+
+/* =========================================================
+   3. BUSCAR DADOS DO BACKEND
+   ========================================================= */
+
+async function getSite() {
+
+    try {
+
+        // Controlador da requisição
+        const controller =
+            new AbortController();
+
+
+        // Tempo máximo de espera
+        const timeout =
+            setTimeout(() => {
+                controller.abort();
+            }, 5000);
+
+
+        // Pedido à API
+        const response =
+            await fetch("/api/site", {
+                cache: "no-store",
+                signal: controller.signal
+            });
+
+
+        // Limpar temporizador
+        clearTimeout(timeout);
+
+
+        // Verificar resposta
+        if (!response.ok) {
+            throw new Error(
+                "Erro ao carregar a API."
             );
         }
+
+
+        // Devolver dados
+        return await response.json();
+
+    } catch (error) {
+
+        // Em caso de erro, usar fallback
+        return fallback;
+    }
+}
+
+
+/* =========================================================
+   4. MOSTRAR CATEGORIAS
+   ========================================================= */
+
+function renderFilters(categories) {
+
+    const filters =
+        $("#filters");
+
+
+    // Verificar existência
+    if (!filters) {
+        return;
+    }
+
+
+    // Garantir array
+    const list =
+        Array.isArray(categories)
+            ? categories
+            : [];
+
+
+    // Botão Todos
+    let html = `
+        <button
+            class="filter active"
+            data-cat="all"
+        >
+            Todos
+        </button>
+    `;
+
+
+    // Categorias
+    html +=
+        list
+            .map(
+                (category) => `
+                    <button
+                        class="filter"
+                        data-cat="${esc(category.id)}"
+                    >
+                        ${esc(category.name)}
+                    </button>
+                `
+            )
+            .join("");
+
+
+    // Inserir
+    filters.innerHTML =
+        html;
+}
+
+
+/* =========================================================
+   5. CONFIGURAR FILTROS
+   ========================================================= */
+
+function setupFilters() {
+
+    document
+        .querySelectorAll(".filter")
+        .forEach((button) => {
+
+            button.onclick = () => {
+
+                // Remover active
+                document
+                    .querySelectorAll(".filter")
+                    .forEach((item) => {
+                        item.classList.remove("active");
+                    });
+
+
+                // Ativar botão escolhido
+                button.classList.add("active");
+
+
+                // Categoria escolhida
+                const selectedCategory =
+                    String(
+                        button.dataset.cat
+                    );
+
+
+                // Percorrer produtos
+                document
+                    .querySelectorAll(".product")
+                    .forEach((product) => {
+
+                        // Categoria do produto
+                        const productCategory =
+                            String(
+                                product.dataset.category || ""
+                            );
+
+
+                        // Mostrar ou esconder
+                        const shouldShow =
+                            selectedCategory === "all" ||
+                            productCategory === selectedCategory;
+
+
+                        product.style.display =
+                            shouldShow
+                                ? ""
+                                : "none";
+                    });
+            };
+
+        });
+}
+
+
+/* =========================================================
+   6. MOSTRAR MENU IMEDIATAMENTE
+   ========================================================= */
+
+function showFallbackMenuImmediately() {
+
+    // Mostrar categorias
+    renderFilters(
+        fallback.categories
     );
 
 
-    /* -------------------------------------------------------
-       Configurações
-       ------------------------------------------------------- */
+    // Mostrar produtos
+    renderProducts(
+        fallback.products
+    );
 
-    if (
-        !db
-            .prepare(
-                'SELECT id FROM settings WHERE id=1'
-            )
-            .get()
-    ) {
 
-        db.prepare(`
-            INSERT INTO settings
-            VALUES(1,?,?,?,?,?,?,?,?)
-        `).run(
-            'O sabor que dá vontade de voltar',
-
-            'Hambúrgueres preparados com sabor, qualidade e aquele toque especial da BAKONGUINHO.',
-
-            'A BAKONGUINHO é uma hamburgueria pensada para quem aprecia boa comida, hambúrgueres saborosos e momentos especiais.',
-
-            'Seleque - Maye Maye, quadra E, Sequele, Icolo Bengo, Angola',
-
-            '923 850 875',
-
-            'Aberto até às 22:00',
-
-            'https://www.google.com/maps/place/Hamburguer+BAKONGUINHO/@-8.8938364,13.5157143,285m/data=!3m1!1e3!4m5!3m4!1s0x1a51ff943b54e54b:0x81f5bb624b697ee3!8m2!3d-8.8939491!4d13.5157987?entry=ttu&g_ep=EgoyMDI2MDkwOS4wIKXMDSoASAFQAw%3D%3D',
-
-            0
-        );
-    }
-
-
-    /* -------------------------------------------------------
-       Produtos iniciais
-       ------------------------------------------------------- */
-
-    if (
-        db
-            .prepare(
-                'SELECT COUNT(*) c FROM products'
-            )
-            .get().c === 0
-    ) {
-
-        const categoryIds = {};
-
-
-        db
-            .prepare(
-                'SELECT * FROM categories'
-            )
-            .all()
-            .forEach(
-                (category) => {
-
-                    categoryIds[
-                        category.name
-                    ] = category.id;
-                }
-            );
-
-
-        const insertProduct =
-            db.prepare(`
-                INSERT INTO products(
-                    category_id,
-                    name,
-                    description,
-                    price,
-                    image,
-                    featured,
-                    active
-                )
-                VALUES(?,?,?,?,?,?,?)
-            `);
-
-
-        insertProduct.run(
-            categoryIds['Hambúrgueres'],
-            'Double Cheeseburger',
-            'Hambúrguer duplo artesanal.',
-            2500,
-            'assets/images/produto_20260911_153446_04612a9283.jpg',
-            1,
-            1
-        );
-
-
-        insertProduct.run(
-            categoryIds['Hambúrgueres'],
-            'Crispy Chicken',
-            'Frango crocante num pão brioche.',
-            2200,
-            'assets/images/produto_20260911_153558_482ad29e45.jpg',
-            1,
-            1
-        );
-
-
-        insertProduct.run(
-            categoryIds['Hambúrgueres'],
-            'Bacon Gourmet',
-            'Hambúrguer gourmet com queijo e bacon.',
-            2800,
-            'assets/images/produto_20260911_155619_7b9b217736.jpg',
-            1,
-            1
-        );
-
-
-        insertProduct.run(
-            categoryIds['Churrasco'],
-            'No nosso churrasco',
-            'Especialidade preparada na brasa.',
-            3500,
-            'assets/images/produto_20260911_161351_5d26f0bdb1.jpg',
-            1,
-            1
-        );
-
-
-        insertProduct.run(
-            categoryIds['Especiais'],
-            'Smash Sliders',
-            'Mini hambúrgueres smash.',
-            2000,
-            'assets/images/bakonguinho.jfif',
-            0,
-            1
-        );
-
-
-        insertProduct.run(
-            categoryIds['Especiais'],
-            'Cheeseburger Clássica',
-            'Receita clássica americana.',
-            2000,
-            'assets/images/bakonguinho2.jfif',
-            0,
-            1
-        );
-    }
-
-
-    /* -------------------------------------------------------
-       IMPORTANTE:
-       Não criar avaliação fictícia automaticamente.
-       ------------------------------------------------------- */
-}
-
-
-seed();
-
-
-/* =========================================================
-   SEGURANÇA
-   ========================================================= */
-
-app.disable(
-    'x-powered-by'
-);
-
-app.set(
-    'trust proxy',
-    1
-);
-
-
-app.use(
-    (req, res, next) => {
-
-        res.setHeader(
-            'X-Content-Type-Options',
-            'nosniff'
-        );
-
-
-        res.setHeader(
-            'Referrer-Policy',
-            'strict-origin-when-cross-origin'
-        );
-
-
-        res.setHeader(
-            'X-Frame-Options',
-            'SAMEORIGIN'
-        );
-
-
-        next();
-    }
-);
-
-
-/* =========================================================
-   BODY PARSER
-   ========================================================= */
-
-app.use(
-    express.json({
-        limit: '2mb'
-    })
-);
-
-
-app.use(
-    express.urlencoded({
-        extended: true
-    })
-);
-
-
-/* =========================================================
-   CORS
-   ========================================================= */
-
-const allowedOrigin =
-    process.env.ALLOWED_ORIGIN;
-
-
-app.use(
-    (req, res, next) => {
-
-        if (allowedOrigin) {
-
-            res.setHeader(
-                'Access-Control-Allow-Origin',
-                allowedOrigin
-            );
-
-
-            res.setHeader(
-                'Access-Control-Allow-Credentials',
-                'true'
-            );
-
-
-            res.setHeader(
-                'Access-Control-Allow-Headers',
-                'Content-Type'
-            );
-
-
-            res.setHeader(
-                'Access-Control-Allow-Methods',
-                'GET,POST,PUT,PATCH,DELETE,OPTIONS'
-            );
-        }
-
-
-        if (
-            req.method === 'OPTIONS'
-        ) {
-
-            return res.sendStatus(
-                204
-            );
-        }
-
-
-        next();
-    }
-);
-
-
-/* =========================================================
-   SESSÃO
-   ========================================================= */
-
-app.use(
-    session({
-        secret:
-            SESSION_SECRET ||
-            'dev-only-change-this-secret',
-
-        resave:
-            false,
-
-        saveUninitialized:
-            false,
-
-        cookie: {
-
-            httpOnly:
-                true,
-
-            sameSite:
-                'lax',
-
-            secure:
-                NODE_ENV === 'production',
-
-            maxAge:
-                1000 *
-                60 *
-                60 *
-                8
-        }
-    })
-);
-
-
-/* =========================================================
-   FICHEIROS
-   ========================================================= */
-
-app.use(
-    '/uploads',
-    express.static(
-        UPLOADS,
-        {
-            maxAge: '7d'
-        }
-    )
-);
-
-
-app.use(
-    express.static(
-        PUBLIC
-    )
-);
-
-
-/* =========================================================
-   UPLOADS
-   ========================================================= */
-
-const imageFilter =
-    (req, file, cb) => {
-
-        cb(
-            null,
-            /^(image\/jpeg|image\/png|image\/webp)$/.test(
-                file.mimetype
-            )
-        );
-    };
-
-
-const makeStorage =
-    (prefix) =>
-        multer.diskStorage({
-
-            destination:
-                (req, file, cb) =>
-
-                    cb(
-                        null,
-                        UPLOADS
-                    ),
-
-
-            filename:
-                (req, file, cb) =>
-
-                    cb(
-                        null,
-                        `${prefix}_${Date.now()}_${Math.random()
-                            .toString(36)
-                            .slice(2, 8)}${path
-                            .extname(
-                                file.originalname
-                            )
-                            .toLowerCase()}`
-                    )
-        });
-
-
-const upload =
-    multer({
-        storage:
-            makeStorage('produto'),
-
-        limits: {
-            fileSize:
-                5 * 1024 * 1024
-        },
-
-        fileFilter:
-            imageFilter
-    });
-
-
-const gUpload =
-    multer({
-        storage:
-            makeStorage('gallery'),
-
-        limits: {
-            fileSize:
-                5 * 1024 * 1024
-        },
-
-        fileFilter:
-            imageFilter
-    });
-
-
-/* =========================================================
-   AUTENTICAÇÃO
-   ========================================================= */
-
-function auth(
-    req,
-    res,
-    next
-) {
-
-    if (
-        !req.session.adminId
-    ) {
-
-        return res
-            .status(401)
-            .json({
-                error:
-                    'Não autenticado'
-            });
-    }
-
-
-    next();
+    // Configurar filtros
+    setupFilters();
 }
 
 
 /* =========================================================
-   FUNÇÕES AUXILIARES
+   7. CARREGAR SITE
    ========================================================= */
 
-function clean(value) {
+async function loadSite() {
 
-    return String(
-        value ?? ''
-    ).trim();
+    // Buscar dados
+    const data =
+        await getSite();
+
+
+    // Configurações
+    const settings =
+        data.settings ||
+        fallback.settings;
+
+
+    /* -------------------------------------------------------
+       Hero
+       ------------------------------------------------------- */
+
+    const heroTitle =
+        $("#heroTitle");
+
+    if (heroTitle) {
+        heroTitle.textContent =
+            settings.hero_title ||
+            fallback.settings.hero_title;
+    }
+
+
+    const heroText =
+        $("#heroText");
+
+    if (heroText) {
+        heroText.textContent =
+            settings.hero_text ||
+            "";
+    }
+
+
+    /* -------------------------------------------------------
+       Sobre nós
+       ------------------------------------------------------- */
+
+    const aboutText =
+        $("#aboutText");
+
+    if (aboutText) {
+        aboutText.textContent =
+            settings.about_text ||
+            "";
+    }
+
+
+    /* -------------------------------------------------------
+       Contacto
+       ------------------------------------------------------- */
+
+    const address =
+        $("#address");
+
+    if (address) {
+        address.textContent =
+            settings.address ||
+            "";
+    }
+
+
+    const phone =
+        $("#phone");
+
+    if (phone) {
+        phone.textContent =
+            settings.phone ||
+            "";
+    }
+
+
+    const hours =
+        $("#hours");
+
+    if (hours) {
+        hours.textContent =
+            settings.hours ||
+            "";
+    }
+
+
+    /* -------------------------------------------------------
+       Google Maps
+       ------------------------------------------------------- */
+
+    const maps =
+        $("#maps");
+
+    if (maps) {
+        maps.href =
+            settings.maps_url ||
+            "#";
+    }
+
+
+    /* -------------------------------------------------------
+       Contagem de avaliações
+       ------------------------------------------------------- */
+
+    const reviewCount =
+        $("#reviewCount");
+
+    if (reviewCount) {
+
+        const count =
+            Array.isArray(data.reviews)
+                ? data.reviews.length
+                : Number(
+                    settings.review_count || 0
+                );
+
+        reviewCount.textContent =
+            count +
+            (
+                count === 1
+                    ? " avaliação"
+                    : " avaliações"
+            );
+    }
+
+
+    /* =======================================================
+       CATEGORIAS
+       ======================================================= */
+
+    const categories =
+        Array.isArray(data.categories) &&
+        data.categories.length
+
+            ? data.categories
+
+            : fallback.categories;
+
+
+    renderFilters(
+        categories
+    );
+
+
+    /* =======================================================
+       PRODUTOS
+       ======================================================= */
+
+    const products =
+        Array.isArray(data.products) &&
+        data.products.length
+
+            ? data.products
+
+            : fallback.products;
+
+
+    renderProducts(
+        products
+    );
+
+
+    // Reativar filtros
+    setupFilters();
+
+
+    /* =======================================================
+       GALERIA
+       ======================================================= */
+
+    renderGallery(
+        Array.isArray(data.gallery)
+            ? data.gallery
+            : fallback.gallery
+    );
+
+
+    /* =======================================================
+       AVALIAÇÕES
+       ======================================================= */
+
+    renderReviews(
+        Array.isArray(data.reviews)
+            ? data.reviews
+            : fallback.reviews
+    );
 }
 
 
-function removeUpload(
-    image
-) {
+/* =========================================================
+   8. PRODUTOS
+   ========================================================= */
 
-    if (
-        !image ||
-        !image.startsWith(
-            'uploads/'
-        )
-    ) {
+function renderProducts(products) {
+
+    const container =
+        $("#products");
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const list =
+        Array.isArray(products)
+            ? products
+            : [];
+
+
+    if (!list.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                Nenhum produto disponível.
+            </div>
+        `;
 
         return;
     }
 
 
-    const file =
-        path.join(
-            UPLOADS,
-            image.slice(
-                'uploads/'.length
-            )
-        );
+    container.innerHTML =
+        list
+            .map((product) => {
+
+                // Categoria
+                const categoryId =
+                    product.category_id ?? "";
 
 
-    if (
-        fs.existsSync(file)
-    ) {
+                // Imagem
+                const image =
+                    product.image
+                        ? `
+                            <img
+                                src="${esc(
+                                    img(product.image)
+                                )}"
+                                alt="${esc(
+                                    product.name
+                                )}"
+                                loading="lazy"
+                                onerror="
+                                    this.style.display='none'
+                                "
+                            >
+                          `
+                        : `
+                            <div class="empty">
+                                Sem imagem
+                            </div>
+                          `;
 
-        fs.unlinkSync(
-            file
-        );
-    }
+
+                return `
+                    <article
+                        class="product"
+                        data-category="${esc(
+                            categoryId
+                        )}"
+                    >
+
+                        <!-- Imagem do produto -->
+                        <div class="product-img">
+                            ${image}
+                        </div>
+
+
+                        <!-- Informações -->
+                        <div class="product-body">
+
+                            <h3>
+                                ${esc(
+                                    product.name
+                                )}
+                            </h3>
+
+                            <p>
+                                ${esc(
+                                    product.description || ""
+                                )}
+                            </p>
+
+                            <span class="price">
+                                A partir de
+                                ${money(product.price)}
+                            </span>
+
+                        </div>
+
+                    </article>
+                `;
+            })
+            .join("");
 }
 
 
 /* =========================================================
-   HEALTH CHECK
+   9. GALERIA
    ========================================================= */
 
-app.get(
-    '/health',
-    (req, res) => {
+function renderGallery(items) {
 
-        res.json({
-            ok: true,
-            service:
-                'bakonguinho-api'
-        });
+    const container =
+        $("#gallery");
+
+
+    if (!container) {
+        return;
     }
-);
 
 
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
-app.post(
-    '/api/login',
-    (req, res) => {
-
-        const admin =
-            db
-                .prepare(
-                    'SELECT * FROM admins WHERE email=?'
-                )
-                .get(
-                    clean(
-                        req.body.email
-                    )
-                );
+    const list =
+        Array.isArray(items)
+            ? items
+            : [];
 
 
-        if (
-            !admin ||
-            !bcrypt.compareSync(
-                req.body.password || '',
-                admin.password
+    if (!list.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                Galeria disponível em breve.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        list
+            .map(
+                (item) => `
+                    <figure>
+
+                        <img
+                            src="${esc(item.image)}"
+                            alt="${esc(
+                                item.caption || ""
+                            )}"
+                            loading="lazy"
+                        >
+
+                    </figure>
+                `
             )
-        ) {
-
-            return res
-                .status(401)
-                .json({
-                    error:
-                        'E-mail ou palavra-passe inválidos.'
-                });
-        }
-
-
-        req.session.adminId =
-            admin.id;
-
-        req.session.adminName =
-            admin.name;
-
-
-        res.json({
-            name:
-                admin.name
-        });
-    }
-);
+            .join("");
+}
 
 
 /* =========================================================
-   LOGOUT
+   10. AVALIAÇÕES
    ========================================================= */
 
-app.post(
-    '/api/logout',
-    (req, res) => {
+function renderReviews(items) {
 
-        req.session.destroy(
-            () => {
+    const container =
+        $("#reviews");
 
-                res.json({
-                    ok: true
-                });
-            }
-        );
+
+    if (!container) {
+        return;
     }
-);
 
 
-/* =========================================================
-   UTILIZADOR ADMINISTRADOR
-   ========================================================= */
+    const list =
+        Array.isArray(items)
+            ? items
+            : [];
 
-app.get(
-    '/api/me',
-    (req, res) => {
 
-        res.json(
-            req.session.adminId
+    // Quando não existirem avaliações aprovadas
+    if (!list.length) {
 
-                ? {
-                    authenticated:
-                        true,
+        container.innerHTML = `
+            <div class="empty">
+                Ainda não há avaliações.
+            </div>
+        `;
 
-                    name:
-                        req.session.adminName
-                }
-
-                : {
-                    authenticated:
-                        false
-                }
-        );
+        return;
     }
-);
 
 
-/* =========================================================
-   API PÚBLICA DO SITE
-   ========================================================= */
-
-app.get(
-    '/api/site',
-    (req, res) => {
-
-        const settings =
-            db
-                .prepare(
-                    'SELECT * FROM settings WHERE id=1'
-                )
-                .get();
-
-
-        const categories =
-            db
-                .prepare(
-                    'SELECT * FROM categories ORDER BY name'
-                )
-                .all();
-
-
-        const products =
-            db
-                .prepare(`
-                    SELECT
-                        p.*,
-                        c.name category_name
-                    FROM products p
-
-                    LEFT JOIN categories c
-                        ON c.id = p.category_id
-
-                    WHERE p.active = 1
-
-                    ORDER BY
-                        p.featured DESC,
-                        p.id DESC
-                `)
-                .all();
-
-
-        const gallery =
-            db
-                .prepare(
-                    'SELECT * FROM gallery ORDER BY id DESC LIMIT 8'
-                )
-                .all();
-
-
-        const reviews =
-            db
-                .prepare(`
-                    SELECT *
-                    FROM reviews
-                    WHERE active = 1
-                    ORDER BY id DESC
-                    LIMIT 6
-                `)
-                .all();
-
-
-        // Contagem real das avaliações aprovadas
-        const approvedReviewCount =
-            db
-                .prepare(`
-                    SELECT COUNT(*) c
-                    FROM reviews
-                    WHERE active = 1
-                `)
-                .get().c;
-
-
-        // Usar a contagem real no retorno
-        if (settings) {
-            settings.review_count =
-                approvedReviewCount;
-        }
-
-
-        res.json({
-            settings,
-            categories,
-            products,
-            gallery,
-            reviews
-        });
-    }
-);
-
-
-/* =========================================================
-   NOVA AVALIAÇÃO PÚBLICA
-   ---------------------------------------------------------
-   Qualquer cliente pode enviar.
-   A avaliação começa com active = 0.
-   ========================================================= */
-
-app.post(
-    '/api/reviews',
-    (req, res) => {
-
-        /* ---------------------------------------------------
-           Dados recebidos
-           --------------------------------------------------- */
-
-        const name =
-            clean(
-                req.body.name
-            );
-
-
-        const comment =
-            clean(
-                req.body.comment
-            );
-
-
-        const rating =
-            Number(
-                req.body.rating || 5
-            );
-
-
-        /* ---------------------------------------------------
-           Validar nome
-           --------------------------------------------------- */
-
-        if (!name) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'Informe o seu nome.'
-                });
-        }
-
-
-        /* ---------------------------------------------------
-           Validar comentário
-           --------------------------------------------------- */
-
-        if (!comment) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'Escreva o seu comentário.'
-                });
-        }
-
-
-        /* ---------------------------------------------------
-           Validar tamanho do nome
-           --------------------------------------------------- */
-
-        if (
-            name.length > 100
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'O nome é demasiado longo.'
-                });
-        }
-
-
-        /* ---------------------------------------------------
-           Validar tamanho do comentário
-           --------------------------------------------------- */
-
-        if (
-            comment.length > 1000
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'O comentário é demasiado longo.'
-                });
-        }
-
-
-        /* ---------------------------------------------------
-           Validar estrelas
-           --------------------------------------------------- */
-
-        if (
-            !Number.isInteger(
-                rating
-            ) ||
-            rating < 1 ||
-            rating > 5
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'A avaliação deve estar entre 1 e 5 estrelas.'
-                });
-        }
-
-
-        try {
-
-            /* -----------------------------------------------
-               Inserir como pendente
-
-               active = 0
-               ----------------------------------------------- */
-
-            db.prepare(`
-                INSERT INTO reviews(
-                    name,
-                    comment,
-                    rating,
-                    active
-                )
-                VALUES(?,?,?,0)
-            `).run(
-                name,
-                comment,
-                rating
-            );
-
-
-            /* -----------------------------------------------
-               Resposta
-               ----------------------------------------------- */
-
-            res
-                .status(201)
-                .json({
-                    ok: true,
-
-                    message:
-                        'Avaliação enviada e aguardando aprovação.'
-                });
-
-
-        } catch (error) {
-
-            console.error(
-                'Erro ao guardar avaliação:',
-                error
-            );
-
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        'Não foi possível enviar a avaliação.'
-                });
-        }
-    }
-);
-
-
-/* =========================================================
-   ESTATÍSTICAS ADMINISTRATIVAS
-   ========================================================= */
-
-app.get(
-    '/api/admin/stats',
-    auth,
-    (req, res) => {
-
-        res.json({
-
-            products:
-                db
-                    .prepare(
-                        'SELECT COUNT(*) c FROM products'
-                    )
-                    .get().c,
-
-            categories:
-                db
-                    .prepare(
-                        'SELECT COUNT(*) c FROM categories'
-                    )
-                    .get().c,
-
-            reviews:
-                db
-                    .prepare(
-                        'SELECT COUNT(*) c FROM reviews'
-                    )
-                    .get().c,
-
-            gallery:
-                db
-                    .prepare(
-                        'SELECT COUNT(*) c FROM gallery'
-                    )
-                    .get().c
-        });
-    }
-);
-
-
-/* =========================================================
-   PRODUTOS - ADMIN
-   ========================================================= */
-
-app.get(
-    '/api/admin/products',
-    auth,
-    (req, res) => {
-
-        res.json(
-            db
-                .prepare(`
-                    SELECT
-                        p.*,
-                        c.name category_name
-                    FROM products p
-
-                    LEFT JOIN categories c
-                        ON c.id = p.category_id
-
-                    ORDER BY p.id DESC
-                `)
-                .all()
-        );
-    }
-);
-
-
-app.post(
-    '/api/admin/products',
-    auth,
-    upload.single('image'),
-    (req, res) => {
-
-        const id =
-            Number(
-                req.body.id || 0
-            );
-
-
-        const name =
-            clean(
-                req.body.name
-            );
-
-
-        const description =
-            clean(
-                req.body.description
-            );
-
-
-        const price =
-            Number(
-                req.body.price || 0
-            );
-
-
-        const category =
-            Number(
-                req.body.category_id || 0
-            );
-
-
-        if (
-            !name ||
-            !Number.isFinite(price) ||
-            price < 0 ||
-            !category
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'Preencha nome, preço e categoria.'
-                });
-        }
-
-
-        try {
-
-            if (id) {
-
-                const old =
-                    db
-                        .prepare(
-                            'SELECT image FROM products WHERE id=?'
+    // Criar avaliações
+    container.innerHTML =
+        list
+            .map((review) => {
+
+                // Garantir nota entre 1 e 5
+                const rating =
+                    Math.max(
+                        1,
+                        Math.min(
+                            5,
+                            Number(
+                                review.rating
+                            ) || 5
                         )
-                        .get(id);
-
-
-                if (!old) {
-
-                    return res
-                        .status(404)
-                        .json({
-                            error:
-                                'Produto não encontrado'
-                        });
-                }
-
-
-                let image =
-                    old.image;
-
-
-                if (
-                    req.file
-                ) {
-
-                    image =
-                        'uploads/' +
-                        req.file.filename;
-
-
-                    removeUpload(
-                        old.image
-                    );
-                }
-
-
-                db
-                    .prepare(`
-                        UPDATE products
-                        SET
-                            category_id=?,
-                            name=?,
-                            description=?,
-                            price=?,
-                            image=?,
-                            featured=?,
-                            active=?
-                        WHERE id=?
-                    `)
-                    .run(
-                        category,
-                        name,
-                        description,
-                        price,
-                        image,
-                        req.body.featured === '1'
-                            ? 1
-                            : 0,
-                        req.body.active === '1'
-                            ? 1
-                            : 0,
-                        id
                     );
 
-            } else {
 
-                const image =
-                    req.file
-                        ? 'uploads/' +
-                          req.file.filename
-                        : '';
-
-
-                db
-                    .prepare(`
-                        INSERT INTO products(
-                            category_id,
-                            name,
-                            description,
-                            price,
-                            image,
-                            featured,
-                            active
-                        )
-                        VALUES(?,?,?,?,?,?,?)
-                    `)
-                    .run(
-                        category,
-                        name,
-                        description,
-                        price,
-                        image,
-                        req.body.featured === '1'
-                            ? 1
-                            : 0,
-                        req.body.active === '1'
-                            ? 1
-                            : 0
+                // Estrelas
+                const stars =
+                    "★".repeat(rating) +
+                    "☆".repeat(
+                        5 - rating
                     );
-            }
 
 
-            res.json({
-                ok: true
-            });
+                return `
+                    <article class="review">
 
-        } catch (error) {
-
-            if (
-                req.file
-            ) {
-
-                removeUpload(
-                    'uploads/' +
-                    req.file.filename
-                );
-            }
+                        <!-- Estrelas -->
+                        <div class="stars">
+                            ${stars}
+                        </div>
 
 
-            res
-                .status(500)
-                .json({
-                    error:
-                        'Não foi possível guardar o produto.'
-                });
-        }
-    }
-);
+                        <!-- Nome -->
+                        <h3>
+                            ${esc(
+                                review.name
+                            )}
+                        </h3>
 
 
-app.delete(
-    '/api/admin/products/:id',
-    auth,
-    (req, res) => {
+                        <!-- Comentário -->
+                        <p>
+                            “${esc(
+                                review.comment
+                            )}”
+                        </p>
 
-        const product =
-            db
-                .prepare(
-                    'SELECT image FROM products WHERE id=?'
-                )
-                .get(
-                    req.params.id
-                );
-
-
-        if (product) {
-
-            db
-                .prepare(
-                    'DELETE FROM products WHERE id=?'
-                )
-                .run(
-                    req.params.id
-                );
-
-
-            removeUpload(
-                product.image
-            );
-        }
-
-
-        res.json({
-            ok: true
-        });
-    }
-);
+                    </article>
+                `;
+            })
+            .join("");
+}
 
 
 /* =========================================================
-   CATEGORIAS - ADMIN
+   11. FORMULÁRIO PÚBLICO DE AVALIAÇÕES
    ========================================================= */
 
-app.get(
-    '/api/admin/categories',
-    auth,
-    (req, res) => {
+function setupReviewForm() {
 
-        res.json(
-            db
-                .prepare(
-                    'SELECT * FROM categories ORDER BY name'
-                )
-                .all()
-        );
+    const form =
+        $("#reviewForm");
+
+    const message =
+        $("#reviewMessage");
+
+
+    // Se não existir formulário
+    if (!form) {
+        return;
     }
-);
 
 
-app.post(
-    '/api/admin/categories',
-    auth,
-    (req, res) => {
+    /* -------------------------------------------------------
+       Enviar formulário
+       ------------------------------------------------------- */
 
-        const id =
-            Number(
-                req.body.id || 0
-            );
+    form.addEventListener(
+        "submit",
+        async (event) => {
 
-
-        const name =
-            clean(
-                req.body.name
-            );
+            // Impedir reload
+            event.preventDefault();
 
 
-        if (!name) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'Informe o nome.'
-                });
-        }
-
-
-        try {
-
-            if (id) {
-
-                db
-                    .prepare(
-                        'UPDATE categories SET name=? WHERE id=?'
-                    )
-                    .run(
-                        name,
-                        id
-                    );
-
-            } else {
-
-                db
-                    .prepare(
-                        'INSERT INTO categories(name) VALUES(?)'
-                    )
-                    .run(
-                        name
-                    );
+            // Limpar mensagem
+            if (message) {
+                message.innerHTML = "";
             }
 
 
-            res.json({
-                ok: true
-            });
-
-        } catch (error) {
-
-            res
-                .status(400)
-                .json({
-                    error:
-                        'Esta categoria já existe.'
-                });
-        }
-    }
-);
+            // Botão
+            const button =
+                form.querySelector(
+                    "button[type='submit']"
+                );
 
 
-app.delete(
-    '/api/admin/categories/:id',
-    auth,
-    (req, res) => {
+            // Desativar enquanto envia
+            if (button) {
 
-        db
-            .prepare(
-                'DELETE FROM categories WHERE id=?'
-            )
-            .run(
-                req.params.id
-            );
+                button.disabled = true;
+
+                button.textContent =
+                    "A enviar...";
+            }
 
 
-        res.json({
-            ok: true
-        });
-    }
-);
+            try {
+
+                // Dados
+                const formData =
+                    new FormData(form);
 
 
-/* =========================================================
-   AVALIAÇÕES - ADMIN
-   ========================================================= */
-
-app.get(
-    '/api/admin/reviews',
-    auth,
-    (req, res) => {
-
-        res.json(
-            db
-                .prepare(`
-                    SELECT *
-                    FROM reviews
-                    ORDER BY id DESC
-                `)
-                .all()
-        );
-    }
-);
+                const name =
+                    String(
+                        formData.get("name") || ""
+                    ).trim();
 
 
-app.post(
-    '/api/admin/reviews',
-    auth,
-    (req, res) => {
-
-        const id =
-            Number(
-                req.body.id || 0
-            );
+                const comment =
+                    String(
+                        formData.get("comment") || ""
+                    ).trim();
 
 
-        const name =
-            clean(
-                req.body.name
-            );
-
-
-        const comment =
-            clean(
-                req.body.comment
-            );
-
-
-        const rating =
-            Math.max(
-                1,
-                Math.min(
-                    5,
+                const rating =
                     Number(
-                        req.body.rating || 5
-                    )
-                )
-            );
+                        formData.get("rating") || 5
+                    );
 
 
-        const active =
-            req.body.active === '0'
-                ? 0
-                : 1;
-
-
-        if (
-            !name ||
-            !comment
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'Preencha nome e comentário.'
-                });
-        }
-
-
-        if (
-            id
-        ) {
-
-            db
-                .prepare(`
-                    UPDATE reviews
-                    SET
-                        name=?,
-                        comment=?,
-                        rating=?,
-                        active=?
-                    WHERE id=?
-                `)
-                .run(
-                    name,
-                    comment,
-                    rating,
-                    active,
-                    id
-                );
-
-        } else {
-
-            db
-                .prepare(`
-                    INSERT INTO reviews(
-                        name,
-                        comment,
-                        rating,
-                        active
-                    )
-                    VALUES(?,?,?,?)
-                `)
-                .run(
-                    name,
-                    comment,
-                    rating,
-                    active
-                );
-        }
-
-
-        res.json({
-            ok: true
-        });
-    }
-);
-
-
-app.delete(
-    '/api/admin/reviews/:id',
-    auth,
-    (req, res) => {
-
-        db
-            .prepare(
-                'DELETE FROM reviews WHERE id=?'
-            )
-            .run(
-                req.params.id
-            );
-
-
-        res.json({
-            ok: true
-        });
-    }
-);
-
-
-app.patch(
-    '/api/admin/reviews/:id/toggle',
-    auth,
-    (req, res) => {
-
-        db
-            .prepare(
-                'UPDATE reviews SET active=1-active WHERE id=?'
-            )
-            .run(
-                req.params.id
-            );
-
-
-        res.json({
-            ok: true
-        });
-    }
-);
-
-
-/* =========================================================
-   GALERIA - ADMIN
-   ========================================================= */
-
-app.get(
-    '/api/admin/gallery',
-    auth,
-    (req, res) => {
-
-        res.json(
-            db
-                .prepare(
-                    'SELECT * FROM gallery ORDER BY id DESC'
-                )
-                .all()
-        );
-    }
-);
-
-
-app.post(
-    '/api/admin/gallery',
-    auth,
-    gUpload.single('image'),
-    (req, res) => {
-
-        const id =
-            Number(
-                req.body.id || 0
-            );
-
-
-        const caption =
-            clean(
-                req.body.caption
-            );
-
-
-        if (!caption) {
-
-            if (
-                req.file
-            ) {
-
-                removeUpload(
-                    'uploads/' +
-                    req.file.filename
-                );
-            }
-
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        'Informe a legenda.'
-                });
-        }
-
-
-        try {
-
-            if (id) {
-
-                const old =
-                    db
-                        .prepare(
-                            'SELECT * FROM gallery WHERE id=?'
-                        )
-                        .get(id);
-
-
-                if (!old) {
-
-                    if (
-                        req.file
-                    ) {
-
-                        removeUpload(
-                            'uploads/' +
-                            req.file.filename
-                        );
-                    }
-
-
-                    return res
-                        .status(404)
-                        .json({
-                            error:
-                                'Imagem não encontrada'
-                        });
+                // Validação local
+                if (!name) {
+                    throw new Error(
+                        "Digite o seu nome."
+                    );
                 }
 
 
-                let image =
-                    old.image;
+                if (!comment) {
+                    throw new Error(
+                        "Digite o seu comentário."
+                    );
+                }
 
 
                 if (
-                    req.file
+                    !Number.isInteger(rating) ||
+                    rating < 1 ||
+                    rating > 5
                 ) {
-
-                    image =
-                        'uploads/' +
-                        req.file.filename;
-
-
-                    removeUpload(
-                        old.image
+                    throw new Error(
+                        "Selecione uma avaliação válida."
                     );
                 }
 
 
-                db
-                    .prepare(`
-                        UPDATE gallery
-                        SET
-                            caption=?,
-                            image=?
-                        WHERE id=?
-                    `)
-                    .run(
-                        caption,
-                        image,
-                        id
+                /* -------------------------------------------
+                   Enviar para o backend
+                   ------------------------------------------- */
+
+                const response =
+                    await fetch(
+                        "/api/reviews",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    name,
+                                    comment,
+                                    rating
+                                })
+                        }
                     );
 
-            } else {
 
-                if (
-                    !req.file
-                ) {
+                // Tentar ler resposta
+                const result =
+                    await response.json();
 
-                    return res
-                        .status(400)
-                        .json({
-                            error:
-                                'Selecione uma imagem.'
-                        });
+
+                // Verificar erro
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error ||
+                        "Não foi possível enviar a avaliação."
+                    );
                 }
 
 
-                db
-                    .prepare(`
-                        INSERT INTO gallery(
-                            caption,
-                            image
-                        )
-                        VALUES(?,?)
-                    `)
-                    .run(
-                        caption,
-                        'uploads/' +
-                        req.file.filename
+                /* -------------------------------------------
+                   Sucesso
+                   ------------------------------------------- */
+
+                if (message) {
+
+                    message.innerHTML = `
+                        <div
+                            style="
+                                padding:12px 15px;
+                                border-radius:10px;
+                                background:#fff4e8;
+                                color:#8a4700;
+                            "
+                        >
+                            Avaliação enviada com sucesso.
+                            Aguarde a aprovação do administrador.
+                        </div>
+                    `;
+                }
+
+
+                // Limpar formulário
+                form.reset();
+
+
+                // Voltar para 5 estrelas
+                const ratingField =
+                    form.querySelector(
+                        'select[name="rating"]'
                     );
+
+
+                if (ratingField) {
+                    ratingField.value = "5";
+                }
+
+
+            } catch (error) {
+
+                /* -------------------------------------------
+                   Erro
+                   ------------------------------------------- */
+
+                if (message) {
+
+                    message.innerHTML = `
+                        <div
+                            style="
+                                padding:12px 15px;
+                                border-radius:10px;
+                                background:#ffeaea;
+                                color:#a40000;
+                            "
+                        >
+                            ${esc(
+                                error.message ||
+                                "Erro ao enviar avaliação."
+                            )}
+                        </div>
+                    `;
+                }
+
+            } finally {
+
+                // Reativar botão
+                if (button) {
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Enviar avaliação";
+                }
             }
 
-
-            res.json({
-                ok: true
-            });
-
-        } catch (error) {
-
-            if (
-                req.file
-            ) {
-
-                removeUpload(
-                    'uploads/' +
-                    req.file.filename
-                );
-            }
-
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        'Não foi possível guardar a imagem.'
-                });
         }
+    );
+}
+
+
+/* =========================================================
+   12. MENU MOBILE
+   ========================================================= */
+
+function setupMobileMenu() {
+
+    const toggle =
+        $(".menu-toggle");
+
+    const nav =
+        $(".main-nav");
+
+
+    if (!toggle || !nav) {
+        return;
     }
-);
 
 
-app.delete(
-    '/api/admin/gallery/:id',
-    auth,
-    (req, res) => {
+    // Abrir / fechar
+    toggle.onclick = () => {
 
-        const gallery =
-            db
-                .prepare(
-                    'SELECT image FROM gallery WHERE id=?'
-                )
-                .get(
-                    req.params.id
-                );
+        nav.classList.toggle("open");
 
 
-        if (
-            gallery
-        ) {
-
-            db
-                .prepare(
-                    'DELETE FROM gallery WHERE id=?'
-                )
-                .run(
-                    req.params.id
-                );
+        const isOpen =
+            nav.classList.contains("open");
 
 
-            removeUpload(
-                gallery.image
+        toggle.setAttribute(
+            "aria-expanded",
+            isOpen
+        );
+
+
+        toggle.textContent =
+            isOpen
+                ? "✕"
+                : "☰";
+    };
+
+
+    // Fechar ao clicar no link
+    document
+        .querySelectorAll(".main-nav a")
+        .forEach((link) => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    nav.classList.remove(
+                        "open"
+                    );
+
+
+                    toggle.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+
+                    toggle.textContent =
+                        "☰";
+                }
             );
-        }
-
-
-        res.json({
-            ok: true
         });
-    }
-);
+}
 
 
 /* =========================================================
-   CONFIGURAÇÕES - ADMIN
+   13. INICIALIZAÇÃO
    ========================================================= */
 
-app.get(
-    '/api/admin/settings',
-    auth,
-    (req, res) => {
-
-        res.json(
-            db
-                .prepare(
-                    'SELECT * FROM settings WHERE id=1'
-                )
-                .get()
-        );
-    }
-);
-
-
-app.put(
-    '/api/admin/settings',
-    auth,
-    (req, res) => {
-
-        const fields = [
-            'hero_title',
-            'hero_text',
-            'about_text',
-            'address',
-            'phone',
-            'hours',
-            'maps_url',
-            'review_count'
-        ];
-
-
-        const values =
-            fields.map(
-                (field) =>
-                    clean(
-                        req.body[field]
-                    )
-            );
-
-
-        db
-            .prepare(`
-                UPDATE settings
-                SET
-                    ${fields
-                        .map(
-                            (field) =>
-                                field + '=?'
-                        )
-                        .join(',')}
-                WHERE id=1
-            `)
-            .run(
-                ...values
-            );
-
-
-        res.json({
-            ok: true
-        });
-    }
-);
-
-
-/* =========================================================
-   ADMIN
-   ========================================================= */
-
-app.get(
-    '/admin',
-    (req, res) => {
-
-        res.sendFile(
-            path.join(
-                PUBLIC,
-                'admin.html'
-            )
-        );
-    }
-);
-
-
-/* =========================================================
-   ROTAS NÃO ENCONTRADAS
-   ========================================================= */
-
-app.use(
-    (req, res) => {
-
-        if (
-            req.path.startsWith(
-                '/api/'
-            )
-        ) {
-
-            return res
-                .status(404)
-                .json({
-                    error:
-                        'Rota não encontrada'
-                });
-        }
-
-
-        if (
-            req.path.startsWith(
-                '/uploads/'
-            )
-        ) {
-
-            return res
-                .status(404)
-                .send(
-                    'Imagem não encontrada'
-                );
-        }
-
-
-        res.sendFile(
-            path.join(
-                PUBLIC,
-                'index.html'
-            )
-        );
-    }
-);
-
-
-/* =========================================================
-   INICIAR SERVIDOR
-   ========================================================= */
-
-app.listen(
-    PORT,
+document.addEventListener(
+    "DOMContentLoaded",
     () => {
 
-        console.log(
-            `BAKONGUINHO API a escutar na porta ${PORT}`
-        );
+        /* ---------------------------------------------------
+           Mostrar produtos imediatamente
+           --------------------------------------------------- */
+
+        showFallbackMenuImmediately();
+
+
+        /* ---------------------------------------------------
+           Ano do copyright
+           --------------------------------------------------- */
+
+        const year =
+            $("#year");
+
+        if (year) {
+
+            year.textContent =
+                new Date().getFullYear();
+        }
+
+
+        /* ---------------------------------------------------
+           Menu mobile
+           --------------------------------------------------- */
+
+        setupMobileMenu();
+
+
+        /* ---------------------------------------------------
+           Formulário de avaliações
+           --------------------------------------------------- */
+
+        setupReviewForm();
+
+
+        /* ---------------------------------------------------
+           Dados atualizados do backend
+           --------------------------------------------------- */
+
+        loadSite();
     }
 );
